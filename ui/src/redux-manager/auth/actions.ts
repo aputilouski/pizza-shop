@@ -17,7 +17,7 @@ export const signUp = (payload: SignUpCredentials) => {
 };
 
 export const USER_UPDATE = '##AUTH/USER_UPDATE';
-export type UserData = Omit<User, 'uuid'>;
+export type UserData = Omit<User, '_id'>;
 export const updateUser = (payload: UserData) => {
   store.dispatch({ type: USER_UPDATE, payload });
 };

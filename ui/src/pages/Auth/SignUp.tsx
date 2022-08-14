@@ -41,7 +41,7 @@ const SignUp = () => {
           value={formik.values.username}
           onBlur={formik.handleBlur}
         />
-        <ErrorMessage>{formik.errors.username}</ErrorMessage>
+        <ErrorMessage>{formik.touched.username ? formik.errors.username : undefined}</ErrorMessage>
 
         <input //
           name="name"
@@ -52,7 +52,7 @@ const SignUp = () => {
           value={formik.values.name}
           onBlur={formik.handleBlur}
         />
-        <ErrorMessage>{formik.errors.name}</ErrorMessage>
+        <ErrorMessage>{formik.touched.name ? formik.errors.name : undefined}</ErrorMessage>
 
         <input //
           name="password"
@@ -64,7 +64,7 @@ const SignUp = () => {
           value={formik.values.password}
           onBlur={formik.handleBlur}
         />
-        <ErrorMessage>{formik.errors.password}</ErrorMessage>
+        <ErrorMessage>{formik.touched.password ? formik.errors.password : undefined}</ErrorMessage>
 
         <input //
           name="confirmPassword"
@@ -76,7 +76,7 @@ const SignUp = () => {
           value={formik.values.confirmPassword}
           onBlur={formik.handleBlur}
         />
-        <ErrorMessage>{formik.errors.confirmPassword}</ErrorMessage>
+        <ErrorMessage>{formik.touched.confirmPassword ? formik.errors.confirmPassword : undefined}</ErrorMessage>
 
         <ErrorMessage>{errorMessage[SIGN_UP]}</ErrorMessage>
 

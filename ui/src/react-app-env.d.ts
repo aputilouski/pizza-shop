@@ -5,7 +5,7 @@ interface Window {
 }
 
 type User = {
-  uuid: string;
+  _id: string;
   name: string;
   username: string;
 };

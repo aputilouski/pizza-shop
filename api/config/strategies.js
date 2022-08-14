@@ -13,7 +13,8 @@ const options = {
 module.exports.useJwtStrategy = () => {
   passport.use(
     new JwtStrategy(options, async function (jwt_payload, done) {
-      User.findByPk(jwt_payload.user_id)
+      User.findById(jwt_payload.id)
+        .select('-tokens')
         .then(user => {
           if (user) done(null, user);
           else done(null, false);
@@ -23,13 +24,13 @@ module.exports.useJwtStrategy = () => {
   );
 };
 
-module.exports.generateAccessToken = user => {
-  const token = jwt.sign({ user_id: user.uuid }, env.jwt_secret, { expiresIn: eval(env.session_expiry) });
+module.exports.generateAccessToken = payload => {
+  const token = jwt.sign(payload, env.jwt_secret, { expiresIn: eval(env.session_expiry) });
   return `Bearer ${token}`;
 };
 
-module.exports.generateRefreshToken = user =>
-  jwt.sign({ user_id: user.uuid }, env.refresh_token_secret, {
+module.exports.generateRefreshToken = payload =>
+  jwt.sign(payload, env.refresh_token_secret, {
     expiresIn: eval(env.refresh_token_expiry),
   });
 
