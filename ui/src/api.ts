@@ -1,10 +1,11 @@
 import axios, { AxiosError } from 'axios';
 import { SignInCredentials, signOut, SignUpCredentials, UserData, UpdatePasswordArgs } from 'redux-manager';
+import { notify } from 'utils';
 
 const DEFAULT_ERROR_MESSAGE = 'An unexpected problem has occurred, please try again later.';
 axios.interceptors.response.use(
   response => {
-    if (response.data.message) console.log(response.data.message);
+    if (response.data.message) notify.success(response.data.message);
     return response;
   },
   error => {
@@ -14,7 +15,7 @@ axios.interceptors.response.use(
       if (dataType === 'string') message = error.response.data;
       else if (dataType === 'object') message = error.response.data.message;
     }
-    console.log(message);
+    notify.error(message);
     if (error.response?.status === 401) signOut();
     throw error;
   }

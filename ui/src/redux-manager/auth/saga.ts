@@ -1,9 +1,9 @@
-import { call, put, take, takeEvery, delay, fork, cancel, retry, cancelled } from 'redux-saga/effects';
+import { call, put, take, takeEvery, delay, fork, cancel, retry, cancelled, select } from 'redux-saga/effects';
 import { Task, EventChannel, eventChannel } from 'redux-saga';
 import authSlice from './slice';
 import api, { getErrorMessage, setAccessToken, getAccessToken, dropAccessToken } from 'api';
 import { SIGN_IN, SignInCredentials, SIGN_OUT, SIGN_UP, SignUpCredentials, USER_UPDATE, PASSWORD_UPDATE, UpdatePasswordArgs, signOut, SYNC_ACCESS_TOKEN } from './actions';
-import { Action } from '../store';
+import { Action, RootState } from '../store';
 import { replace } from 'connected-react-router';
 
 const REFRESH_TOKEN_TIMEOUT = (eval(process.env.REACT_APP_REFRESH_TOKEN_TIMEOUT as string) || 60 * 5) * 1000;
@@ -97,7 +97,8 @@ function* autoSignInWorker() {
       yield put({ type: SYNC_ACCESS_TOKEN, payload: response.data.token });
       yield put(authSlice.actions.signIn({ user: response.data.user }));
     }
-    yield put(replace('/main'));
+    const pathname: string = yield select((state: RootState) => state.router.location.pathname);
+    if (pathname === '/') yield put(replace('/main'));
   } catch (error) {
     console.error(error);
     yield put(authSlice.actions.setPendingAuth(false));
