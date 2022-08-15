@@ -1,78 +1,66 @@
 import React from 'react';
-import { useFormik } from 'formik';
-import { ErrorMessage } from 'components';
 import { updatePassword, useStore, PASSWORD_UPDATE } from 'redux-manager';
 import { scheme } from 'utils';
+import { Button, TextInput, Alert } from '@mantine/core';
+import { useForm, yupResolver } from '@mantine/form';
 
 const UpdatePassword = () => {
   const { loading, errorMessage } = useStore(s => s.auth);
 
-  const formik = useFormik({
+  const form = useForm({
     initialValues: { currentPassword: '', password: '', confirmPassword: '' },
-    validationSchema: scheme.object({
-      currentPassword: scheme.password,
-      password: scheme.password,
-      confirmPassword: scheme.confirmPassword,
-    }),
-    onSubmit: updatePassword,
+    validate: yupResolver(
+      scheme.object({
+        currentPassword: scheme.password,
+        password: scheme.password,
+        confirmPassword: scheme.confirmPassword,
+      })
+    ),
   });
 
-  const setSubmitting = formik.setSubmitting;
-  const resetForm = formik.resetForm;
+  const resetForm = form.reset;
   React.useEffect(() => {
-    if (!loading) {
-      setSubmitting(false);
-      resetForm();
-    }
-  }, [loading, setSubmitting, resetForm]);
+    if (!loading) resetForm();
+  }, [loading, resetForm]);
 
   return (
     <form //
-      onSubmit={formik.handleSubmit}
+      onSubmit={form.onSubmit(updatePassword)}
       className="max-w-sm w-full m-auto flex flex-col gap-3.5 p-4">
       <h1 className="text-2xl mb-1.5">Update Password</h1>
 
-      <input //
+      <TextInput //
         name="currentPassword"
         placeholder="Current Password"
         type="password"
         className="border"
         autoComplete="off"
-        onChange={formik.handleChange}
-        value={formik.values.currentPassword}
-        onBlur={formik.handleBlur}
+        {...form.getInputProps('currentPassword')}
       />
-      <ErrorMessage>{formik.errors.currentPassword}</ErrorMessage>
 
-      <input //
+      <TextInput //
         name="password"
         placeholder="Password"
         type="password"
         className="border"
         autoComplete="off"
-        onChange={formik.handleChange}
-        value={formik.values.password}
-        onBlur={formik.handleBlur}
+        {...form.getInputProps('password')}
       />
-      <ErrorMessage>{formik.errors.password}</ErrorMessage>
 
-      <input //
+      <TextInput //
         name="confirmPassword"
         placeholder="Confirm Password"
         type="password"
         className="border"
         autoComplete="off"
-        onChange={formik.handleChange}
-        value={formik.values.confirmPassword}
-        onBlur={formik.handleBlur}
+        {...form.getInputProps('confirmPassword')}
       />
-      <ErrorMessage>{formik.errors.confirmPassword}</ErrorMessage>
 
-      <ErrorMessage>{errorMessage[PASSWORD_UPDATE]}</ErrorMessage>
+      {errorMessage[PASSWORD_UPDATE] && <Alert color="red">{errorMessage[PASSWORD_UPDATE]}</Alert>}
 
-      <button type="submit" disabled={formik.isSubmitting}>
+      <Button type="submit" disabled={loading}>
         Update Password
-      </button>
+      </Button>
     </form>
   );
 };

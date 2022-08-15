@@ -1,94 +1,73 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { signUp, useStore, SIGN_UP } from 'redux-manager';
-import { useFormik } from 'formik';
-import { ErrorMessage } from 'components';
 import { scheme } from 'utils';
-import clsx from 'clsx';
+import { Button, TextInput, Alert, LoadingOverlay } from '@mantine/core';
+import { useForm, yupResolver } from '@mantine/form';
 
 const SignUp = () => {
-  const formik = useFormik({
+  const form = useForm({
     initialValues: { username: '', name: '', password: '', confirmPassword: '' },
-    validationSchema: scheme.object({
-      name: scheme.name,
-      username: scheme.username,
-      password: scheme.password,
-      confirmPassword: scheme.confirmPassword,
-    }),
-    onSubmit: signUp,
+    validate: yupResolver(
+      scheme.object({
+        name: scheme.name,
+        username: scheme.username,
+        password: scheme.password,
+        confirmPassword: scheme.confirmPassword,
+      })
+    ),
   });
 
   const { loading, errorMessage } = useStore(s => s.auth);
 
-  const setSubmitting = formik.setSubmitting;
-  React.useEffect(() => {
-    if (!loading) setSubmitting(false);
-  }, [loading, setSubmitting]);
-
   return (
     <div className="w-screen h-screen flex">
       <form //
-        onSubmit={formik.handleSubmit}
-        className="max-w-sm w-full m-auto flex flex-col gap-3.5 p-4">
+        onSubmit={form.onSubmit(signUp)}
+        className="max-w-sm w-full m-auto flex flex-col gap-3.5 p-4 pb-20">
+        <LoadingOverlay visible={loading} overlayBlur={2} />
+
         <h1 className="text-2xl mb-1.5">Sign Up</h1>
 
-        <input //
+        <TextInput //
           name="username"
           placeholder="Username"
-          className="border"
           autoComplete="off"
-          onChange={formik.handleChange}
-          value={formik.values.username}
-          onBlur={formik.handleBlur}
+          {...form.getInputProps('username')}
         />
-        <ErrorMessage>{formik.touched.username ? formik.errors.username : undefined}</ErrorMessage>
 
-        <input //
+        <TextInput //
           name="name"
           placeholder="Name"
-          className="border"
           autoComplete="off"
-          onChange={formik.handleChange}
-          value={formik.values.name}
-          onBlur={formik.handleBlur}
+          {...form.getInputProps('name')}
         />
-        <ErrorMessage>{formik.touched.name ? formik.errors.name : undefined}</ErrorMessage>
 
-        <input //
+        <TextInput //
           name="password"
           placeholder="Password"
           type="password"
           className="border"
           autoComplete="off"
-          onChange={formik.handleChange}
-          value={formik.values.password}
-          onBlur={formik.handleBlur}
+          {...form.getInputProps('password')}
         />
-        <ErrorMessage>{formik.touched.password ? formik.errors.password : undefined}</ErrorMessage>
 
-        <input //
+        <TextInput //
           name="confirmPassword"
           placeholder="Confirm Password"
           type="password"
-          className="border"
           autoComplete="off"
-          onChange={formik.handleChange}
-          value={formik.values.confirmPassword}
-          onBlur={formik.handleBlur}
+          {...form.getInputProps('confirmPassword')}
         />
-        <ErrorMessage>{formik.touched.confirmPassword ? formik.errors.confirmPassword : undefined}</ErrorMessage>
 
-        <ErrorMessage>{errorMessage[SIGN_UP]}</ErrorMessage>
+        {errorMessage[SIGN_UP] && <Alert color="red">{errorMessage[SIGN_UP]}</Alert>}
 
-        <button type="submit" disabled={formik.isSubmitting}>
+        <Button type="submit" disabled={loading}>
           Sign Up
-        </button>
+        </Button>
 
-        <div className={clsx('text-center', formik.isSubmitting && 'pointer-events-none ')}>
-          <Link to="/" replace>
-            Sign In
-          </Link>
-        </div>
+        <Button component={Link} to="/" replace disabled={loading} variant="outline">
+          Sign In
+        </Button>
       </form>
     </div>
   );

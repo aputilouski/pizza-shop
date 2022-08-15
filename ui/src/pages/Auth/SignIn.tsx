@@ -1,66 +1,50 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 import { signIn, useStore, SIGN_IN } from 'redux-manager';
-import { useFormik } from 'formik';
-import { ErrorMessage } from 'components';
 import { scheme } from 'utils';
-import clsx from 'clsx';
+import { Button, TextInput, Alert, LoadingOverlay } from '@mantine/core';
+import { useForm, yupResolver } from '@mantine/form';
 
 const SignIn = () => {
-  const formik = useFormik({
+  const form = useForm({
     initialValues: { username: '', password: '' },
-    validationSchema: scheme.object({ username: scheme.username, password: scheme.password }),
-    onSubmit: signIn,
+    validate: yupResolver(scheme.object({ username: scheme.username, password: scheme.password })),
   });
 
   const { loading, errorMessage } = useStore(s => s.auth);
 
-  const setSubmitting = formik.setSubmitting;
-  React.useEffect(() => {
-    if (!loading) setSubmitting(false);
-  }, [loading, setSubmitting]);
-
   return (
-    <div className="w-screen h-screen flex">
+    <div className="w-screen h-screen flex relative">
       <form //
-        onSubmit={formik.handleSubmit}
-        className="max-w-sm w-full m-auto flex flex-col gap-3.5 p-4">
+        onSubmit={form.onSubmit(signIn)}
+        className="max-w-sm w-full m-auto flex flex-col gap-3.5 p-4 pb-20">
+        <LoadingOverlay visible={loading} overlayBlur={2} />
+
         <h1 className="text-2xl mb-1.5">Sign In</h1>
 
-        <input //
+        <TextInput //
           name="username"
           placeholder="Username"
-          className="border"
           autoComplete="username"
-          onChange={formik.handleChange}
-          value={formik.values.username}
-          onBlur={formik.handleBlur}
+          {...form.getInputProps('username')}
         />
-        <ErrorMessage>{formik.touched.username ? formik.errors.username : undefined}</ErrorMessage>
 
-        <input //
+        <TextInput //
           name="password"
           placeholder="Password"
           type="password"
-          className="border"
           autoComplete="current-password"
-          onChange={formik.handleChange}
-          value={formik.values.password}
-          onBlur={formik.handleBlur}
+          {...form.getInputProps('password')}
         />
-        <ErrorMessage>{formik.touched.password ? formik.errors.password : undefined}</ErrorMessage>
 
-        <ErrorMessage>{errorMessage[SIGN_IN]}</ErrorMessage>
+        {errorMessage[SIGN_IN] && <Alert color="red">{errorMessage[SIGN_IN]}</Alert>}
 
-        <button type="submit" disabled={formik.isSubmitting}>
+        <Button type="submit" disabled={loading}>
           Sign In
-        </button>
+        </Button>
 
-        <div className={clsx('text-center', formik.isSubmitting && 'pointer-events-none ')}>
-          <Link to="/sign-up" replace>
-            Sign Up
-          </Link>
-        </div>
+        <Button component={Link} to="/sign-up" replace disabled={loading} variant="outline">
+          Sign Up
+        </Button>
       </form>
     </div>
   );

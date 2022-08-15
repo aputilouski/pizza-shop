@@ -1,59 +1,48 @@
-import React from 'react';
-import { useFormik } from 'formik';
-import { ErrorMessage } from 'components';
 import { useStore, updateUser, USER_UPDATE } from 'redux-manager';
 import UpdatePassword from './UpdatePassword';
 import { scheme } from 'utils';
+import { useForm, yupResolver } from '@mantine/form';
+import { Button, TextInput, Alert, LoadingOverlay } from '@mantine/core';
 
 const Profile = () => {
   const { loading, errorMessage, user } = useStore(s => s.auth);
-
-  const formik = useFormik({
+  const form = useForm({
     initialValues: { username: user?.username || '', name: user?.name || '' },
-    validationSchema: scheme.object({ username: scheme.username, name: scheme.name }),
-    onSubmit: updateUser,
+    validate: yupResolver(scheme.object({ username: scheme.username, name: scheme.name })),
   });
-
-  const setSubmitting = formik.setSubmitting;
-  React.useEffect(() => {
-    if (!loading) setSubmitting(false);
-  }, [loading, setSubmitting]);
 
   if (!user) return null;
   return (
     <>
       <form //
-        onSubmit={formik.handleSubmit}
+        onSubmit={form.onSubmit(updateUser)}
         className="max-w-sm w-full m-auto flex flex-col gap-3.5 p-4">
+        {/* This LoadingOverlay is used for both forms (this one and UpdatePassword) */}
+        <LoadingOverlay visible={loading} overlayBlur={2} />
+
         <h1 className="text-2xl mb-1.5">Profile</h1>
 
-        <input //
+        <TextInput //
           name="username"
           placeholder="Username"
           className="border"
           autoComplete="off"
-          onChange={formik.handleChange}
-          value={formik.values.username}
-          onBlur={formik.handleBlur}
+          {...form.getInputProps('username')}
         />
-        <ErrorMessage>{formik.errors.username}</ErrorMessage>
 
-        <input //
+        <TextInput //
           name="name"
           placeholder="Name"
           className="border"
           autoComplete="off"
-          onChange={formik.handleChange}
-          value={formik.values.name}
-          onBlur={formik.handleBlur}
+          {...form.getInputProps('name')}
         />
-        <ErrorMessage>{formik.errors.name}</ErrorMessage>
 
-        <ErrorMessage>{errorMessage[USER_UPDATE]}</ErrorMessage>
+        {errorMessage[USER_UPDATE] && <Alert color="red">{errorMessage[USER_UPDATE]}</Alert>}
 
-        <button type="submit" disabled={formik.isSubmitting}>
+        <Button type="submit" disabled={loading}>
           Save
-        </button>
+        </Button>
       </form>
 
       <UpdatePassword />

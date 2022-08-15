@@ -4,28 +4,31 @@ import { SignIn, SignUp, MainPage, Profile } from 'pages';
 import { Layout, AuthController, AutoSignInIndicator } from 'components';
 import { Provider } from 'react-redux';
 import { store, history } from 'redux-manager';
+import { MantineProvider } from '@mantine/core';
 
 const App = () => (
-  <Provider store={store}>
-    <ConnectedRouter history={history}>
-      <AutoSignInIndicator>
-        <Switch>
-          <Route exact path="/" component={SignIn} />
-          <Route path="/sign-up" component={SignUp} />
-          <Route>
-            <AuthController>
-              <Layout>
-                <Switch>
-                  <Route path="/main" component={MainPage} />
-                  <Route path="/profile" component={Profile} />
-                </Switch>
-              </Layout>
-            </AuthController>
-          </Route>
-        </Switch>
-      </AutoSignInIndicator>
-    </ConnectedRouter>
-  </Provider>
+  <MantineProvider withNormalizeCSS withGlobalStyles>
+    <Provider store={store}>
+      <ConnectedRouter history={history}>
+        <AutoSignInIndicator>
+          <Switch>
+            <Route exact path="/" component={SignIn} />
+            <Route path="/sign-up" component={SignUp} />
+            <Route>
+              <AuthController>
+                <Layout>
+                  <Switch>
+                    <Route path="/main" component={MainPage} />
+                    <Route path="/profile" component={Profile} />
+                  </Switch>
+                </Layout>
+              </AuthController>
+            </Route>
+          </Switch>
+        </AutoSignInIndicator>
+      </ConnectedRouter>
+    </Provider>
+  </MantineProvider>
 );
 
 export default App;
