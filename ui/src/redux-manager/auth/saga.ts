@@ -17,7 +17,7 @@ function subscribe(bc: BroadcastChannel) {
       switch (type) {
         case SIGN_IN:
           setAccessToken(payload.token);
-          emit(replace('/main'));
+          emit(replace('/admin/main'));
           emit(authSlice.actions.signIn(payload));
           break;
 
@@ -74,7 +74,7 @@ function* signInWorker(action: Action<SignInCredentials>, bc: BroadcastChannel) 
     yield put(authSlice.actions.signIn(response.data));
     yield call([localStorage, localStorage.setItem], 'authorized', '1');
     yield call([bc, bc.postMessage], { type: SIGN_IN, payload: response.data });
-    yield put(replace('/main'));
+    yield put(replace('/admin/main'));
   } catch (error) {
     yield put(authSlice.actions.setErrorMessage({ [SIGN_IN]: getErrorMessage(error) }));
     throw error;
@@ -98,7 +98,7 @@ function* autoSignInWorker() {
       yield put(authSlice.actions.signIn({ user: response.data.user }));
     }
     const pathname: string = yield select((state: RootState) => state.router.location.pathname);
-    if (pathname === '/') yield put(replace('/main'));
+    if (pathname === '/admin') yield put(replace('/admin/main'));
   } catch (error) {
     console.error(error);
     yield put(authSlice.actions.setPendingAuth(false));
@@ -194,7 +194,7 @@ function* authWather(bc: BroadcastChannel) {
 }
 
 export default function* main() {
-  yield takeEvery(SIGN_UP, signUpWorker);
+  // yield takeEvery(SIGN_UP, signUpWorker);
 
   const bc: BroadcastChannel = yield call(() => new BroadcastChannel('auth'));
   yield fork(syncAccessTokenWorker, bc);

@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+// import { Link } from 'react-router-dom';
 import { signIn, useStore, SIGN_IN } from 'redux-manager';
 import { scheme } from 'utils';
 import { Button, TextInput, Alert, LoadingOverlay } from '@mantine/core';
@@ -16,7 +16,7 @@ const SignIn = () => {
     <div className="w-screen h-screen flex relative">
       <form //
         onSubmit={form.onSubmit(signIn)}
-        className="max-w-sm w-full m-auto flex flex-col gap-3.5 p-4 pb-20">
+        className="max-w-sm w-full m-auto flex flex-col gap-3.5 p-4 pb-16">
         <LoadingOverlay visible={loading} overlayBlur={2} />
 
         <h1 className="text-2xl mb-1.5">Sign In</h1>
@@ -41,10 +41,10 @@ const SignIn = () => {
         <Button type="submit" disabled={loading}>
           Sign In
         </Button>
-
+        {/* 
         <Button component={Link} to="/sign-up" replace disabled={loading} variant="outline">
           Sign Up
-        </Button>
+        </Button> */}
       </form>
     </div>
   );

@@ -3,7 +3,7 @@ import { Redirect } from 'react-router-dom';
 
 const AuthController = ({ children }: { children: JSX.Element }) => {
   const { authorized } = useStore(state => state.auth);
-  return authorized ? children : <Redirect to="/" />;
+  return authorized ? children : <Redirect to="/admin" />;
 };
 
 export default AuthController;
