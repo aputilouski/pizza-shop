@@ -1,4 +1,3 @@
-import { Divider, Box } from '@mantine/core';
 import MenuSection from './MenuSection';
 
 const MainPage = () => {

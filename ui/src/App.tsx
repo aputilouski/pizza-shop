@@ -1,14 +1,22 @@
 import { Route, Switch } from 'react-router';
 import { ConnectedRouter } from 'connected-react-router';
-import { SignIn, AdminStartPage, Profile, Main } from 'pages';
-import { AdminLayout, AuthController, AutoSignInIndicator, Layout } from 'components';
+import { SignIn, AdminPanel, Main } from 'pages';
+import { AutoSignInIndicator, Layout } from 'components';
 import { Provider } from 'react-redux';
 import { store, history } from 'redux-manager';
-import { MantineProvider } from '@mantine/core';
+import { MantineProvider, Global } from '@mantine/core';
 import { NotificationsProvider } from '@mantine/notifications';
 
 const App = () => (
   <MantineProvider withGlobalStyles withNormalizeCSS>
+    <Global
+      styles={{
+        '*': {
+          margin: 0,
+          padding: 0,
+        },
+      }}
+    />
     <NotificationsProvider>
       <Provider store={store}>
         <ConnectedRouter history={history}>
@@ -24,15 +32,8 @@ const App = () => (
               <Route path="/admin">
                 <Switch>
                   <Route exact path="/admin" component={SignIn} />
-                  <Route>
-                    <AuthController>
-                      <AdminLayout>
-                        <Switch>
-                          <Route path="/main" component={AdminStartPage} />
-                          <Route path="/profile" component={Profile} />
-                        </Switch>
-                      </AdminLayout>
-                    </AuthController>
+                  <Route path="/admin/:page">
+                    <AdminPanel path="/admin" />
                   </Route>
                 </Switch>
               </Route>
