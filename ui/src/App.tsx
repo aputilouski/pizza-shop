@@ -11,10 +11,7 @@ const App = () => (
   <MantineProvider withGlobalStyles withNormalizeCSS>
     <Global
       styles={{
-        '*': {
-          margin: 0,
-          padding: 0,
-        },
+        '*': { margin: 0, padding: 0 },
       }}
     />
     <NotificationsProvider>

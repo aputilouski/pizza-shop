@@ -8,10 +8,15 @@ const { strategies, env, db } = require('@config');
 strategies.useJwtStrategy();
 db.connect();
 
+const { graphqlHTTP } = require('express-graphql');
+const schema = require('./schema');
+
 const indexRouter = require('./routes/index');
 const authRouter = require('./routes/auth');
 
 const app = express();
+
+app.use('/graphql', graphqlHTTP({ schema, graphiql: env.is_development }));
 
 app.use(logger('dev'));
 app.use(express.json());
