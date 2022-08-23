@@ -1,6 +1,6 @@
 import React from 'react';
 import { Modal, Button } from '@mantine/core';
-import { getSchema } from './product-schema';
+import { useSchema } from './product-schema';
 import { PRODCUCT_KEY } from 'utils';
 import { EditableList } from 'components';
 
@@ -13,9 +13,10 @@ type ProductEditorProps = {
 };
 
 const ProductEditor = ({ type, id, isCreation, opened, onClose }: ProductEditorProps) => {
-  console.log(id, isCreation, opened);
+  const [fields, initialSchema] = useSchema(type);
+  const [values, setValues] = React.useState(initialSchema);
 
-  const schema = getSchema(type);
+  console.log(values);
 
   return (
     <Modal
@@ -27,41 +28,14 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose }: ProductEditorP
       {/* <LoadingOverlay visible={visible} overlayBlur={2} /> */}
 
       <div className="flex flex-col gap-2">
-        {schema.map(({ component: Component, props, key }) => (
-          <Component key={key} {...props} />
+        {fields.map(({ component: Component, props, key }) => (
+          <Component //
+            key={key}
+            {...props}
+            value={values[key]}
+            onUpdate={(value: string) => setValues(values => ({ ...values, [key]: value }))}
+          />
         ))}
-
-        {/* <TextInput //
-        placeholder="Name"
-        label="Name"
-        required
-      />
-      <Textarea //
-        className="mt-2"
-        placeholder="Description"
-        label="Description"
-        autosize
-      />
-      <Group grow className="mt-2">
-        <TextInput //
-          placeholder="Price"
-          label="Price"
-        />
-        <TextInput //
-          placeholder="Weight"
-          label="Weight"
-        />
-      </Group> */}
-
-        <EditableList
-          title="Weight"
-          value={[
-            { key: 'test', value: 'Test' },
-            { key: 'test2', value: 'Test2' },
-            { key: 'test3', value: 'Test3' },
-          ]}
-          onChange={items => console.log(items)}
-        />
 
         <div className="text-center mt-8">
           <Button>{isCreation ? 'Create' : 'Save'}</Button>
