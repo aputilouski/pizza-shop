@@ -1,6 +1,6 @@
 import React from 'react';
 import { TextInput, Textarea } from '@mantine/core';
-import { EditableList } from 'components';
+import { EditableList, EditableImageList } from 'components';
 import { PRODUCT } from 'utils';
 
 type Field<T, P> = {
@@ -71,7 +71,7 @@ const schema = {
     description,
     // images: {},
     price,
-    weight,
+    // weight,
   ],
   [PRODUCT.STARTERS]: [name, description, price],
   [PRODUCT.CHICKEN]: [name, description, price],
