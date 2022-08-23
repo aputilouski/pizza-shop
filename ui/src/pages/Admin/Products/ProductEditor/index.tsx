@@ -2,7 +2,6 @@ import React from 'react';
 import { Modal, Button } from '@mantine/core';
 import { useSchema } from './product-schema';
 import { PRODCUCT_KEY } from 'utils';
-import { EditableList } from 'components';
 
 type ProductEditorProps = {
   type: PRODCUCT_KEY;
