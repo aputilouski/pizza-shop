@@ -2,23 +2,23 @@ const {
   GraphQLSchema, //
   GraphQLObjectType,
   GraphQLString,
-  GraphQLInt,
   GraphQLNonNull,
   GraphQLID,
   GraphQLInputObjectType,
   GraphQLEnumType,
   GraphQLList,
+  GraphQLFloat,
 } = require('graphql');
 const { Product } = require('@models');
 
 const ProductTypeEnum = new GraphQLEnumType({
   name: 'Type',
   values: {
-    PIZZA: { value: 'pizza' },
-    STARTERS: { value: 'starters' },
-    CHICKEN: { value: 'chicken' },
-    DESSERTS: { value: 'desserts' },
-    DRINKS: { value: 'drinks' },
+    pizza: { value: 'pizza' },
+    starters: { value: 'starters' },
+    chicken: { value: 'chicken' },
+    desserts: { value: 'desserts' },
+    drinks: { value: 'drinks' },
   },
 });
 
@@ -29,7 +29,7 @@ const ProductType = new GraphQLObjectType({
     type: { type: new GraphQLNonNull(ProductTypeEnum) },
     name: { type: new GraphQLNonNull(GraphQLString) },
     description: { type: new GraphQLNonNull(GraphQLString) },
-    price: { type: new GraphQLNonNull(GraphQLInt) },
+    price: { type: new GraphQLNonNull(GraphQLFloat) },
   }),
 });
 
@@ -66,7 +66,7 @@ const Mutation = new GraphQLObjectType({
                 type: { type: new GraphQLNonNull(ProductTypeEnum) },
                 name: { type: new GraphQLNonNull(GraphQLString) },
                 description: { type: new GraphQLNonNull(GraphQLString) },
-                price: { type: new GraphQLNonNull(GraphQLInt) },
+                price: { type: new GraphQLNonNull(GraphQLFloat) },
               },
             })
           ),

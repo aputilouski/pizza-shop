@@ -23,5 +23,3 @@ export const PRODUCT = {
     [DRINKS]: 'Drinks',
   },
 };
-
-export type PRODCUCT_KEY = typeof KEYS[number];

@@ -2,7 +2,7 @@ const mongoose = require('mongoose');
 const { Schema } = mongoose;
 const bcrypt = require('bcryptjs');
 
-const PUBLIC_ATTRIBUTES = ['_id', 'username', 'name'];
+const PUBLIC_ATTRIBUTES = ['id', 'username', 'name'];
 
 const userSchema = new Schema(
   {

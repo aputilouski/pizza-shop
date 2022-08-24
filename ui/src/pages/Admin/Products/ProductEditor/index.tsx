@@ -1,21 +1,46 @@
 import React from 'react';
-import { Modal, Button } from '@mantine/core';
+import { Modal, Button, LoadingOverlay, Alert } from '@mantine/core';
 import { useSchema } from './product-schema';
-import { PRODCUCT_KEY } from 'utils';
+import { gql, useMutation } from '@apollo/client';
+import { useForm, yupResolver } from '@mantine/form';
 
 type ProductEditorProps = {
-  type: PRODCUCT_KEY;
+  type: ProductKey;
   id?: string;
   isCreation: boolean;
   opened: boolean;
   onClose: () => void;
+  select: JSX.Element;
 };
 
-const ProductEditor = ({ type, id, isCreation, opened, onClose }: ProductEditorProps) => {
-  const [fields, initialSchema] = useSchema(type);
-  const [values, setValues] = React.useState(initialSchema);
+const CREATE_PRODUCT = gql`
+  mutation ($input: newProduct!) {
+    addProduct(input: $input) {
+      id
+    }
+  }
+`;
 
-  console.log(values);
+const UPDATE_PRODUCT = gql`
+  mutation ($input: newProduct!) {
+    addProduct(input: $input) {
+      id
+    }
+  }
+`;
+
+const ProductEditor = ({ type, id, isCreation, opened, onClose, select }: ProductEditorProps) => {
+  const [fields, initialValues, validate] = useSchema(type);
+
+  const form = useForm({ initialValues, validate: yupResolver(validate) });
+  console.log(form.values);
+
+  const { reset } = form;
+  React.useEffect(() => {
+    if (!opened) reset();
+  }, [opened, reset]);
+
+  const [save, { loading, error }] = useMutation(isCreation ? CREATE_PRODUCT : UPDATE_PRODUCT);
 
   return (
     <Modal
@@ -24,22 +49,23 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose }: ProductEditorP
       size="xl"
       opened={opened}
       onClose={onClose}>
-      {/* <LoadingOverlay visible={visible} overlayBlur={2} /> */}
+      <LoadingOverlay visible={loading} overlayBlur={2} />
 
-      <div className="flex flex-col gap-2">
+      <form //
+        onSubmit={form.onSubmit(values => save({ variables: { input: { ...values, type } } }).then(onClose))}
+        className="flex flex-col gap-2">
+        {select}
+
         {fields.map(({ component: Component, props, key }) => (
-          <Component //
-            key={key}
-            {...props}
-            value={values[key]}
-            onUpdate={(value: string) => setValues(values => ({ ...values, [key]: value }))}
-          />
+          <Component key={key} {...props} {...form.getInputProps(key)} />
         ))}
 
+        {error && <Alert color="red">{error.message}</Alert>}
+
         <div className="text-center mt-8">
-          <Button>{isCreation ? 'Create' : 'Save'}</Button>
+          <Button type="submit">{isCreation ? 'Create' : 'Save'}</Button>
         </div>
-      </div>
+      </form>
     </Modal>
   );
 };

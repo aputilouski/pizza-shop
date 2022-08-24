@@ -1,69 +1,65 @@
 import React from 'react';
-import { TextInput, Textarea } from '@mantine/core';
+import { TextInput, Textarea, NumberInput } from '@mantine/core';
 import { EditableList, EditableImageList } from 'components';
 import { PRODUCT } from 'utils';
+import * as Yup from 'yup';
+import { FormValidateInput } from '@mantine/form/lib/types';
 
 type Field<T, P> = {
   key: string;
   value: any;
   component: T;
   props: P;
+  validate: Yup.AnySchema;
 };
 
-type FieldType<P> = P & { onUpdate?: (value: string) => void };
-
-const TextInputField: React.FC<FieldType<React.ComponentProps<typeof TextInput>>> = (
-  { onUpdate, ...props } //
-) => <TextInput {...props} onChange={onUpdate ? e => onUpdate(e.target.value) : undefined} />;
-
-const name: Field<typeof TextInputField, React.ComponentProps<typeof TextInputField>> = {
+const name: Field<typeof TextInput, React.ComponentProps<typeof TextInput>> = {
   key: 'name',
   value: '',
-  component: TextInputField,
+  component: TextInput,
   props: {
     label: 'Name:',
     placeholder: 'Name',
-    required: true,
   },
+  validate: Yup.string().required('Required'),
 };
 
-const TextAreaField: React.FC<FieldType<React.ComponentProps<typeof Textarea>>> = (
-  { onUpdate, ...props } //
-) => <Textarea {...props} onChange={onUpdate ? e => onUpdate(e.target.value) : undefined} />;
-
-const description: Field<typeof TextAreaField, React.ComponentProps<typeof TextAreaField>> = {
+const description: Field<typeof Textarea, React.ComponentProps<typeof Textarea>> = {
   key: 'description',
   value: '',
-  component: TextAreaField,
+  component: Textarea,
   props: {
     label: 'Description:',
     placeholder: 'Description',
     autosize: true,
     maxRows: 5,
     minRows: 3,
-    required: true,
   },
+  validate: Yup.string().required('Required'),
 };
 
-const price: Field<typeof TextInputField, React.ComponentProps<typeof TextInputField>> = {
+const price: Field<typeof NumberInput, React.ComponentProps<typeof NumberInput>> = {
   key: 'price',
-  value: '',
-  component: TextInputField,
+  value: 0,
+  component: NumberInput,
   props: {
     label: 'Price:',
     placeholder: 'Price',
-    required: true,
+    decimalSeparator: ',',
+    step: 0.1,
+    precision: 2,
   },
+  validate: Yup.number().min(1, 'Price must be greater than 0').required('Required'),
 };
 
-const weight: Field<typeof EditableList, React.ComponentProps<typeof EditableList>> = {
-  key: 'weight',
-  value: [],
-  component: EditableList,
-  props: {
-    label: 'Weight Options',
-  },
-};
+// const weight: Field<typeof EditableList, React.ComponentProps<typeof EditableList>> = {
+//   key: 'weight',
+//   value: [],
+//   component: EditableList,
+//   props: {
+//     label: 'Weight Options',
+//   },
+// };
 
 const schema = {
   [PRODUCT.PIZZA]: [
@@ -79,7 +75,7 @@ const schema = {
   [PRODUCT.DRINKS]: [name, description, price],
 };
 
-export const useSchema = (type: string): [Field<any, any>[], { [key: string]: string }] => {
+export const useSchema = (type: string): [Field<any, any>[], { [key: string]: string }, Yup.AnyObjectSchema] => {
   const fields = schema[type];
 
   const initialState = React.useMemo(() => {
@@ -87,5 +83,7 @@ export const useSchema = (type: string): [Field<any, any>[], { [key: string]: st
     return keyValue.reduce<{ [key: string]: string }>((obj, [key, value]) => ({ ...obj, [key]: value }), {});
   }, [fields]);
 
-  return [fields, initialState];
+  const validate = React.useMemo(() => Yup.object(fields.reduce((obj, field) => ({ ...obj, [field.key]: field.validate }), {})), [fields]);
+
+  return [fields, initialState, validate];
 };

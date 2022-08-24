@@ -19,11 +19,14 @@ const userSchema = new Schema(
     price: {
       type: Number,
       required: true,
+      get: v => (v / 100).toFixed(2),
+      set: v => v * 100,
     },
   },
   {
     statics: {},
     methods: {},
+    toJSON: { getters: true },
   }
 );
 
