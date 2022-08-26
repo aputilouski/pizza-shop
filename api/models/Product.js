@@ -27,6 +27,7 @@ const userSchema = new Schema(
     statics: {},
     methods: {},
     toJSON: { getters: true },
+    timestamps: true,
   }
 );
 

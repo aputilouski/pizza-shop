@@ -16,6 +16,22 @@ type Product = {
   name: string;
   description: string;
   price: number;
+  updatedAt: string;
+  createdAt: string;
 };
 
 type ProductKey = Product.type;
+
+type CursorPagination<T> = {
+  totalCount: number;
+  edges: {
+    node: T;
+    cursor: string;
+  }[];
+  pageInfo: {
+    startCursor: string | null;
+    endCursor: string | null;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+  };
+};

@@ -33,14 +33,15 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select }: Produc
   const [fields, initialValues, validate] = useSchema(type);
 
   const form = useForm({ initialValues, validate: yupResolver(validate) });
-  console.log(form.values);
 
   const { reset } = form;
   React.useEffect(() => {
     if (!opened) reset();
   }, [opened, reset]);
 
-  const [save, { loading, error }] = useMutation(isCreation ? CREATE_PRODUCT : UPDATE_PRODUCT);
+  const [save, { loading, error }] = useMutation(isCreation ? CREATE_PRODUCT : UPDATE_PRODUCT, {
+    refetchQueries: ['GetProducts'],
+  });
 
   return (
     <Modal
@@ -63,7 +64,9 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select }: Produc
         {error && <Alert color="red">{error.message}</Alert>}
 
         <div className="text-center mt-8">
-          <Button type="submit">{isCreation ? 'Create' : 'Save'}</Button>
+          <Button type="submit" disabled={loading}>
+            {isCreation ? 'Create' : 'Save'}
+          </Button>
         </div>
       </form>
     </Modal>
