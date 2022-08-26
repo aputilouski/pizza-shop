@@ -35,3 +35,8 @@ type CursorPagination<T> = {
     hasPreviousPage: boolean;
   };
 };
+
+type OffsetPagination<T> = {
+  count: number;
+  rows: T[];
+};

@@ -8,30 +8,26 @@ import moment from 'moment';
 import { IconEdit, IconTrash } from '@tabler/icons';
 
 const GET_PRODUCTS = gql`
-  query GetProducts {
-    products {
-      totalCount
-      edges {
-        node {
-          id
-          name
-          updatedAt
-          createdAt
-        }
-        cursor
+  query GetProducts($limit: Int, $offset: Int) {
+    products(limit: $limit, offset: $offset) {
+      rows {
+        id
+        name
+        updatedAt
+        createdAt
       }
-      pageInfo {
-        startCursor
-        endCursor
-        hasNextPage
-        hasPreviousPage
-      }
+      count
     }
   }
 `;
 
+const limit = 1;
+
 const ProductManagment = () => {
-  const { loading, error, data } = useQuery<{ products: CursorPagination<Pick<Product, 'id' | 'name' | 'updatedAt' | 'createdAt'>> }>(GET_PRODUCTS);
+  const [page, setPage] = React.useState(1);
+  const { loading, error, data } = useQuery<{ products: OffsetPagination<Pick<Product, 'id' | 'name' | 'updatedAt' | 'createdAt'>> }>(GET_PRODUCTS, {
+    variables: { limit, offset: (page - 1) * limit },
+  });
 
   console.log(data);
   const [type, setType] = React.useState<ProductKey>(PRODUCT.KEYS[0]);
@@ -82,12 +78,12 @@ const ProductManagment = () => {
             </tr>
           </thead>
           <tbody>
-            {data?.products.edges.map((edge, index) => (
-              <tr key={edge.node.id} className="h-10">
+            {data?.products.rows.map((product, index) => (
+              <tr key={product.id} className="h-10">
                 <td>{index + 1}</td>
-                <td className="max-w-0 truncate">{edge.node.name}</td>
-                <td>{moment(edge.node.updatedAt).format('DD/MM/YYYY hh:mm')}</td>
-                <td>{moment(edge.node.createdAt).format('DD/MM/YYYY hh:mm')}</td>
+                <td className="max-w-0 truncate">{product.name}</td>
+                <td>{moment(product.updatedAt).format('DD/MM/YYYY hh:mm')}</td>
+                <td>{moment(product.createdAt).format('DD/MM/YYYY hh:mm')}</td>
                 <td>
                   <Actions />
                 </td>
@@ -97,7 +93,12 @@ const ProductManagment = () => {
         </Table>
 
         <div className="my-10 flex justify-center">
-          <Pagination radius="xl" total={10} />
+          <Pagination //
+            radius="xl"
+            page={page}
+            onChange={setPage}
+            total={Math.ceil((data?.products.count ?? 1) / limit)}
+          />
         </div>
       </div>
     </>
