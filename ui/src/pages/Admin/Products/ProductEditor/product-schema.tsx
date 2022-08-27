@@ -3,7 +3,6 @@ import { TextInput, Textarea, NumberInput } from '@mantine/core';
 import { EditableList, EditableImageList } from 'components';
 import { PRODUCT } from 'utils';
 import * as Yup from 'yup';
-import { FormValidateInput } from '@mantine/form/lib/types';
 
 type Field<T, P> = {
   key: string;

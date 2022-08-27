@@ -21,15 +21,16 @@ const GET_PRODUCTS = gql`
   }
 `;
 
-const limit = 1;
+const limit = 2;
 
 const ProductManagment = () => {
   const [page, setPage] = React.useState(1);
+
   const { loading, error, data } = useQuery<{ products: OffsetPagination<Pick<Product, 'id' | 'name' | 'updatedAt' | 'createdAt'>> }>(GET_PRODUCTS, {
     variables: { limit, offset: (page - 1) * limit },
+    fetchPolicy: 'no-cache',
   });
 
-  console.log(data);
   const [type, setType] = React.useState<ProductKey>(PRODUCT.KEYS[0]);
   const [editor, setEditor] = React.useState<{ id?: string; opened: boolean }>({ opened: false });
 
@@ -52,6 +53,7 @@ const ProductManagment = () => {
         type={type}
         id={editor.id}
         isCreation={!editor.id}
+        afterCreation={() => setPage(1)}
         opened={editor.opened}
         onClose={() => setEditor({ id: undefined, opened: false })}
         select={select}

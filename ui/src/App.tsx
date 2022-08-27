@@ -6,16 +6,12 @@ import { Provider } from 'react-redux';
 import { store, history } from 'redux-manager';
 import { MantineProvider, Global } from '@mantine/core';
 import { NotificationsProvider } from '@mantine/notifications';
-import { ApolloClient, InMemoryCache, ApolloProvider } from '@apollo/client';
+import { ApolloProvider } from '@apollo/client';
+import apolloClient from './apollo-client';
 
 const styles = {
   '*': { margin: 0, padding: 0 },
 };
-
-const client = new ApolloClient({
-  uri: window.location.origin + '/graphql',
-  cache: new InMemoryCache(),
-});
 
 const App = () => (
   <MantineProvider withGlobalStyles withNormalizeCSS>
@@ -24,7 +20,7 @@ const App = () => (
       <Provider store={store}>
         <ConnectedRouter history={history}>
           <AutoSignInIndicator>
-            <ApolloProvider client={client}>
+            <ApolloProvider client={apolloClient}>
               <Switch>
                 <Route exact path="/">
                   <Layout>

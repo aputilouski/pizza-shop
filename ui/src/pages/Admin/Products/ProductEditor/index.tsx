@@ -10,6 +10,7 @@ type ProductEditorProps = {
   isCreation: boolean;
   opened: boolean;
   onClose: () => void;
+  afterCreation: () => void;
   select: JSX.Element;
 };
 
@@ -29,7 +30,7 @@ const UPDATE_PRODUCT = gql`
   }
 `;
 
-const ProductEditor = ({ type, id, isCreation, opened, onClose, select }: ProductEditorProps) => {
+const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCreation }: ProductEditorProps) => {
   const [fields, initialValues, validate] = useSchema(type);
 
   const form = useForm({ initialValues, validate: yupResolver(validate) });
@@ -53,7 +54,12 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select }: Produc
       <LoadingOverlay visible={loading} overlayBlur={2} />
 
       <form //
-        onSubmit={form.onSubmit(values => save({ variables: { input: { ...values, type } } }).then(onClose))}
+        onSubmit={form.onSubmit(values =>
+          save({ variables: { input: { ...values, type } } }).then(() => {
+            onClose();
+            if (isCreation) afterCreation();
+          })
+        )}
         className="flex flex-col gap-2">
         {select}
 
