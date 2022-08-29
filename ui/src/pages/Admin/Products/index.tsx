@@ -1,11 +1,12 @@
 import React from 'react';
-import { Button, Select, Table, Pagination, LoadingOverlay, ActionIcon } from '@mantine/core';
+import { Button, Select, Table, Pagination, LoadingOverlay, ActionIcon, Text } from '@mantine/core';
 import { ErrorAlert } from 'components';
 import ProductEditor from './ProductEditor';
-import { PRODUCT } from 'utils';
-import { gql, useQuery } from '@apollo/client';
+import { notify, PRODUCT } from 'utils';
+import { gql, useQuery, useMutation } from '@apollo/client';
 import moment from 'moment';
 import { IconEdit, IconTrash } from '@tabler/icons';
+import { openConfirmModal } from '@mantine/modals';
 
 const GET_PRODUCTS = gql`
   query GetProducts($limit: Int, $offset: Int) {
@@ -21,7 +22,15 @@ const GET_PRODUCTS = gql`
   }
 `;
 
-const limit = 2;
+const DELETE_PRODUCT = gql`
+  mutation DeleteProduct($id: ID!) {
+    DeleteProduct(id: $id) {
+      id
+    }
+  }
+`;
+
+const limit = 10;
 
 const ProductManagment = () => {
   const [page, setPage] = React.useState(1);
@@ -29,7 +38,14 @@ const ProductManagment = () => {
   const { loading, error, data } = useQuery<{ products: OffsetPagination<Pick<Product, 'id' | 'name' | 'updatedAt' | 'createdAt'>> }>(GET_PRODUCTS, {
     variables: { limit, offset: (page - 1) * limit },
     fetchPolicy: 'no-cache',
+    notifyOnNetworkStatusChange: true,
   });
+
+  const [deleteProduct, { loading: deleteLoading, error: deleteError }] = useMutation(DELETE_PRODUCT, { refetchQueries: ['GetProducts'] });
+
+  React.useEffect(() => {
+    if (deleteError?.message) notify.error(deleteError.message);
+  }, [deleteError]);
 
   const [type, setType] = React.useState<ProductKey>(PRODUCT.KEYS[0]);
   const [editor, setEditor] = React.useState<{ id?: string; opened: boolean }>({ opened: false });
@@ -46,6 +62,19 @@ const ProductManagment = () => {
     ),
     [selectData, type]
   );
+
+  const onDelete = React.useCallback(
+    (id: string) =>
+      openConfirmModal({
+        title: 'Please confirm your action',
+        children: <Text size="sm">Do you really want to delete this item?</Text>,
+        labels: { confirm: 'Confirm', cancel: 'Cancel' },
+        onConfirm: () => deleteProduct({ variables: { id } }),
+      }),
+    [deleteProduct]
+  );
+
+  const onEdit = React.useCallback((id: string) => setEditor({ id, opened: true }), []);
 
   return (
     <>
@@ -67,7 +96,7 @@ const ProductManagment = () => {
       {error && <ErrorAlert message={error.message} />}
 
       <div className="relative">
-        <LoadingOverlay visible={loading} overlayBlur={2} />
+        <LoadingOverlay visible={loading || deleteLoading} overlayBlur={2} />
 
         <Table striped highlightOnHover>
           <thead>
@@ -87,7 +116,10 @@ const ProductManagment = () => {
                 <td>{moment(product.updatedAt).format('DD/MM/YYYY hh:mm')}</td>
                 <td>{moment(product.createdAt).format('DD/MM/YYYY hh:mm')}</td>
                 <td>
-                  <Actions />
+                  <Actions //
+                    onDelete={() => onDelete(product.id)}
+                    onEdit={() => onEdit(product.id)}
+                  />
                 </td>
               </tr>
             ))}
@@ -107,13 +139,13 @@ const ProductManagment = () => {
   );
 };
 
-const Actions = () => (
+const Actions = ({ onDelete, onEdit }: { onDelete: () => void; onEdit: () => void }) => (
   <div className="flex gap-2">
-    <ActionIcon color="dark" variant="subtle" size={24}>
+    <ActionIcon color="dark" variant="subtle" size={24} onClick={onEdit}>
       <IconEdit size={16} />
     </ActionIcon>
 
-    <ActionIcon color="dark" variant="subtle" size={24}>
+    <ActionIcon color="dark" variant="subtle" size={24} onClick={onDelete}>
       <IconTrash size={16} />
     </ActionIcon>
   </div>

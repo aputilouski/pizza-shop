@@ -48,8 +48,16 @@ const price: Field<typeof NumberInput, React.ComponentProps<typeof NumberInput>>
     step: 0.1,
     precision: 2,
   },
-  validate: Yup.number().min(1, 'Price must be greater than 0').required('Required'),
+  validate: Yup.number().min(0, 'Price must be greater than 0').required('Required'),
 };
+
+// const prices = {
+//   key: 'prices',
+//   value: [{ key: 'sm', value: 0, weight: 0 }],
+//   // component: null,
+//   // props: {}
+//   // validate:
+// };
 
 // const weight: Field<typeof EditableList, React.ComponentProps<typeof EditableList>> = {
 //   key: 'weight',
@@ -74,7 +82,7 @@ const schema = {
   [PRODUCT.DRINKS]: [name, description, price],
 };
 
-export const useSchema = (type: string): [Field<any, any>[], { [key: string]: string }, Yup.AnyObjectSchema] => {
+export const useSchema = (type: string): [Field<any, any>[], { [key: string]: any }, Yup.AnyObjectSchema] => {
   const fields = schema[type];
 
   const initialState = React.useMemo(() => {

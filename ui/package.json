@@ -10,6 +10,7 @@
     "@mantine/core": "^5.1.6",
     "@mantine/form": "^5.1.6",
     "@mantine/hooks": "^5.1.6",
+    "@mantine/modals": "^5.2.4",
     "@mantine/notifications": "^5.1.6",
     "@reduxjs/toolkit": "^1.8.3",
     "@tabler/icons": "^1.82.0",

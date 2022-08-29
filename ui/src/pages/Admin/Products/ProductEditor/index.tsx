@@ -1,7 +1,7 @@
 import React from 'react';
 import { Modal, Button, LoadingOverlay, Alert } from '@mantine/core';
 import { useSchema } from './product-schema';
-import { gql, useMutation } from '@apollo/client';
+import { gql, useMutation, useQuery } from '@apollo/client';
 import { useForm, yupResolver } from '@mantine/form';
 
 type ProductEditorProps = {
@@ -15,16 +15,26 @@ type ProductEditorProps = {
 };
 
 const CREATE_PRODUCT = gql`
-  mutation ($input: newProduct!) {
-    addProduct(input: $input) {
+  mutation CreateProduct($input: CreateProductData!) {
+    CreateProduct(input: $input) {
       id
     }
   }
 `;
 
+const GET_PRODUCT = gql`
+  query GetProduct($id: ID!) {
+    product(id: $id) {
+      name
+      description
+      price
+    }
+  }
+`;
+
 const UPDATE_PRODUCT = gql`
-  mutation ($input: newProduct!) {
-    addProduct(input: $input) {
+  mutation UpdateProduct($input: UpdateProductData!) {
+    UpdateProduct(input: $input) {
       id
     }
   }
@@ -34,15 +44,35 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
   const [fields, initialValues, validate] = useSchema(type);
 
   const form = useForm({ initialValues, validate: yupResolver(validate) });
+  const { reset, setValues } = form;
 
-  const { reset } = form;
-  React.useEffect(() => {
-    if (!opened) reset();
-  }, [opened, reset]);
-
-  const [save, { loading, error }] = useMutation(isCreation ? CREATE_PRODUCT : UPDATE_PRODUCT, {
-    refetchQueries: ['GetProducts'],
+  const {
+    loading: fetchingProduct,
+    error: fetchingProductError,
+    data,
+  } = useQuery<{ product: Pick<Product, 'name' | 'description' | 'price'> }>(GET_PRODUCT, {
+    variables: { id },
+    fetchPolicy: 'no-cache',
+    notifyOnNetworkStatusChange: true,
+    skip: !id,
   });
+
+  React.useEffect(() => {
+    if (!data) return;
+    const { name, description, price } = data.product;
+    setValues({ name, description, price });
+  }, [data, setValues]);
+
+  const [save, { loading: executingSave, error: saveError, reset: resetSaveData }] = useMutation(isCreation ? CREATE_PRODUCT : UPDATE_PRODUCT, { refetchQueries: ['GetProducts'] });
+
+  React.useEffect(() => {
+    if (opened) return;
+    reset();
+    resetSaveData();
+  }, [opened, reset, resetSaveData]);
+
+  const loading = executingSave || fetchingProduct;
+  const error = fetchingProductError || saveError;
 
   return (
     <Modal
@@ -55,13 +85,13 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
 
       <form //
         onSubmit={form.onSubmit(values =>
-          save({ variables: { input: { ...values, type } } }).then(() => {
+          save({ variables: { input: isCreation ? { ...values, type } : { ...values, id } } }).then(() => {
             onClose();
             if (isCreation) afterCreation();
           })
         )}
         className="flex flex-col gap-2">
-        {select}
+        {isCreation && select}
 
         {fields.map(({ component: Component, props, key }) => (
           <Component key={key} {...props} {...form.getInputProps(key)} />

@@ -17,10 +17,8 @@ const Query = new GraphQLObjectType({
   fields: {
     product: {
       type: ProductType,
-      args: { id: { type: GraphQLID } },
-      resolve(_, { id }) {
-        return Product.findById(id);
-      },
+      args: { id: { type: new GraphQLNonNull(GraphQLID) } },
+      resolve: (_, { id }) => Product.findById(id),
     },
     products: {
       type: OffsetPaginationType('products', ProductType),
@@ -29,7 +27,10 @@ const Query = new GraphQLObjectType({
         offset: { type: GraphQLInt, defaultValue: 0 },
       },
       resolve: async (_, { limit, offset }) => {
-        const [count, rows] = await Promise.all([Product.find().count(), Product.find().sort('-createdAt').limit(limit).skip(offset)]);
+        const [count, rows] = await Promise.all([
+          Product.find().count(), //
+          Product.find().sort('-createdAt').limit(limit).skip(offset),
+        ]);
         return { count, rows };
       },
     },
@@ -39,13 +40,13 @@ const Query = new GraphQLObjectType({
 const Mutation = new GraphQLObjectType({
   name: 'mutation',
   fields: {
-    addProduct: {
+    CreateProduct: {
       type: ProductType,
       args: {
         input: {
           type: new GraphQLNonNull(
             new GraphQLInputObjectType({
-              name: 'newProduct',
+              name: 'CreateProductData',
               fields: {
                 type: { type: new GraphQLNonNull(ProductTypeEnum) },
                 name: { type: new GraphQLNonNull(GraphQLString) },
@@ -56,9 +57,31 @@ const Mutation = new GraphQLObjectType({
           ),
         },
       },
-      async resolve(_, { input }) {
-        return Product.create(input);
+      resolve: (_, { input }) => Product.create(input),
+    },
+    UpdateProduct: {
+      type: ProductType,
+      args: {
+        input: {
+          type: new GraphQLNonNull(
+            new GraphQLInputObjectType({
+              name: 'UpdateProductData',
+              fields: {
+                id: { type: new GraphQLNonNull(GraphQLID) },
+                name: { type: new GraphQLNonNull(GraphQLString) },
+                description: { type: new GraphQLNonNull(GraphQLString) },
+                price: { type: new GraphQLNonNull(GraphQLFloat) },
+              },
+            })
+          ),
+        },
       },
+      resolve: (_, { input }) => Product.findOneAndUpdate({ _id: input.id }, input),
+    },
+    DeleteProduct: {
+      type: ProductType,
+      args: { id: { type: new GraphQLNonNull(GraphQLID) } },
+      resolve: (_, { id: _id }) => Product.findOneAndDelete({ _id }),
     },
   },
 });
