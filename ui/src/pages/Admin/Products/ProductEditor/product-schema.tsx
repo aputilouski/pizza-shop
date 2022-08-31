@@ -1,8 +1,9 @@
 import React from 'react';
-import { TextInput, Textarea, NumberInput } from '@mantine/core';
+import { TextInput, Textarea } from '@mantine/core';
 import { EditableList, EditableImageList } from 'components';
 import { PRODUCT } from 'utils';
 import * as Yup from 'yup';
+import Prices from './Prices';
 
 type Field<T, P> = {
   key: string;
@@ -37,57 +38,48 @@ const description: Field<typeof Textarea, React.ComponentProps<typeof Textarea>>
   validate: Yup.string().required('Required'),
 };
 
-const price: Field<typeof NumberInput, React.ComponentProps<typeof NumberInput>> = {
-  key: 'price',
-  value: 0,
-  component: NumberInput,
+const prices: Field<typeof Prices, React.ComponentProps<typeof Prices>> = {
+  key: 'prices',
+  value: [
+    { variant: 'sm', value: 0, weight: 0 },
+    { variant: 'md', value: 0, weight: 0 },
+    { variant: 'lg', value: 0, weight: 0 },
+  ],
+  component: Prices,
   props: {
-    label: 'Price:',
-    placeholder: 'Price',
-    decimalSeparator: ',',
-    step: 0.1,
-    precision: 2,
+    variants: ['sm', 'md', 'lg'],
+    generatePrice: variant => ({ variant, value: 0, weight: 0 }),
   },
-  validate: Yup.number().min(0, 'Price must be greater than 0').required('Required'),
+  validate: Yup.array()
+    .of(
+      Yup.object().shape({
+        value: Yup.number().min(0.1, 'Price must be greater than 0.1').required('Price value is required'),
+        weight: Yup.number().min(0, 'Price must be greater than 0').required('Weight is required'),
+      })
+    )
+    .min(1, 'Minimum 1 price required')
+    .required('Required'),
 };
-
-// const prices = {
-//   key: 'prices',
-//   value: [{ key: 'sm', value: 0, weight: 0 }],
-//   // component: null,
-//   // props: {}
-//   // validate:
-// };
-
-// const weight: Field<typeof EditableList, React.ComponentProps<typeof EditableList>> = {
-//   key: 'weight',
-//   value: [],
-//   component: EditableList,
-//   props: {
-//     label: 'Weight Options',
-//   },
-// };
 
 const schema = {
   [PRODUCT.PIZZA]: [
     name,
     description,
     // images: {},
-    price,
-    // weight,
+    prices,
   ],
-  [PRODUCT.STARTERS]: [name, description, price],
-  [PRODUCT.CHICKEN]: [name, description, price],
-  [PRODUCT.DESSERTS]: [name, description, price],
-  [PRODUCT.DRINKS]: [name, description, price],
+  [PRODUCT.STARTERS]: [name, description],
+  [PRODUCT.CHICKEN]: [name, description],
+  [PRODUCT.DESSERTS]: [name, description],
+  [PRODUCT.DRINKS]: [name, description],
 };
 
 export const useSchema = (type: string): [Field<any, any>[], { [key: string]: any }, Yup.AnyObjectSchema] => {
-  const fields = schema[type];
+  const fields: Field<any, any>[] = schema[type];
 
   const initialState = React.useMemo(() => {
     const keyValue = fields.map(f => [f.key, f.value]);
-    return keyValue.reduce<{ [key: string]: string }>((obj, [key, value]) => ({ ...obj, [key]: value }), {});
+    return keyValue.reduce<{ [key: string]: any }>((obj, [key, value]) => ({ ...obj, [key]: value }), {});
   }, [fields]);
 
   const validate = React.useMemo(() => Yup.object(fields.reduce((obj, field) => ({ ...obj, [field.key]: field.validate }), {})), [fields]);

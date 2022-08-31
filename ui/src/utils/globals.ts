@@ -23,3 +23,9 @@ export const PRODUCT = {
     [DRINKS]: 'Drinks',
   },
 };
+
+export const PRICE_LABEL = {
+  sm: 'Small',
+  md: 'Medium',
+  lg: 'Large',
+};

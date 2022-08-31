@@ -3,6 +3,7 @@ import { Modal, Button, LoadingOverlay, Alert } from '@mantine/core';
 import { useSchema } from './product-schema';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { useForm, yupResolver } from '@mantine/form';
+import { EditableImageList } from 'components';
 
 type ProductEditorProps = {
   type: ProductKey;
@@ -96,6 +97,8 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
         {fields.map(({ component: Component, props, key }) => (
           <Component key={key} {...props} {...form.getInputProps(key)} />
         ))}
+
+        <EditableImageList />
 
         {error && <Alert color="red">{error.message}</Alert>}
 

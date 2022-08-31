@@ -1,4 +1,5 @@
 const debug = require('debug')('api:server');
+const path = require('path');
 
 const config = {
   is_production: process.env.NODE_ENV === 'production',
@@ -12,6 +13,8 @@ const config = {
   session_expiry: process.env.SESSION_EXPIRY,
   refresh_token_expiry: process.env.REFRESH_TOKEN_EXPIRY,
   cookie_secret: process.env.COOKIE_SECRET,
+
+  media_path: path.join(__dirname, '../../media'),
 };
 
 debug(config);

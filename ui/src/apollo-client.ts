@@ -1,4 +1,5 @@
 import { ApolloClient, InMemoryCache } from '@apollo/client';
+import { createUploadLink } from 'apollo-upload-client';
 
 const client = new ApolloClient({
   uri: window.location.origin + '/graphql',
@@ -8,6 +9,9 @@ const client = new ApolloClient({
     //     fields: {},
     //   },
     // },
+  }),
+  link: createUploadLink({
+    uri: window.location.origin + '/graphql',
   }),
 });
 

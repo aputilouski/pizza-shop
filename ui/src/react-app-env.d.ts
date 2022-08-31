@@ -22,6 +22,18 @@ type Product = {
 
 type ProductKey = Product.type;
 
+type SizeKey = 'sm' | 'md' | 'lg';
+
+type ProductPrice = {
+  variant: string;
+  value: number;
+};
+
+type PizzaPrice = ProductPrice & {
+  variant: SizeKey;
+  weight: number;
+};
+
 type CursorPagination<T> = {
   totalCount: number;
   edges: {

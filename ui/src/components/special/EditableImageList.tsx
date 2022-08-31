@@ -2,34 +2,53 @@ import React from 'react';
 import { useListState } from '@mantine/hooks';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import clsx from 'clsx';
-import { Divider, CloseButton, ActionIcon, Image, ScrollArea, FileButton } from '@mantine/core';
+import { Divider, CloseButton, ActionIcon, Image, ScrollArea, FileButton, Loader } from '@mantine/core';
 import { IconPlus } from '@tabler/icons';
-
-const images = [
-  'https://images.unsplash.com/photo-1511216335778-7cb8f49fa7a3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=720&q=80', //
-  'https://images.unsplash.com/photo-1511216335778-7cb8f49fa7a3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=720&q=80',
-  'https://images.unsplash.com/photo-1511216335778-7cb8f49fa7a3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=720&q=80',
-  'https://images.unsplash.com/photo-1511216335778-7cb8f49fa7a3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=720&q=80',
-  'https://images.unsplash.com/photo-1511216335778-7cb8f49fa7a3?ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&ixlib=rb-1.2.1&auto=format&fit=crop&w=720&q=80',
-];
+import { notify } from 'utils';
+import { gql, useMutation } from '@apollo/client';
 
 type EditableListProps = {
   label?: string;
   id?: string;
   value?: string[];
-  onUpdate?: (items: string[]) => void;
+  onChange?: (items: string[]) => void;
 };
 
-const EditableImageList = ({ label, value = images, id, onUpdate }: EditableListProps) => {
-  const [state, { reorder, prepend, remove }] = useListState(value);
+const SINGLE_UPLOAD = gql`
+  mutation SingleUpload($file: Upload!) {
+    SingleUpload(file: $file) {
+      name
+      link
+    }
+  }
+`;
+
+const EditableImageList = ({ label = 'Images', value: images = [], id, onChange: setImages }: EditableListProps) => {
+  const [upload, { loading, error, data, reset }] = useMutation<{ SingleUpload: { name: string; link: string } }>(SINGLE_UPLOAD);
+
+  React.useEffect(() => {
+    if (!error) return;
+    notify.error(error.message);
+  }, [error]);
+
+  const [state, { reorder, prepend, remove }] = useListState(images);
+
+  const prependRef = React.useRef(prepend);
+  prependRef.current = prepend;
+
+  React.useEffect(() => {
+    if (!data) return;
+    prependRef.current(data.SingleUpload.link);
+    reset();
+  }, [data, reset]);
 
   const [update, setUpdate] = React.useState(false);
 
   React.useEffect(() => {
-    if (!update || !onUpdate) return;
-    onUpdate(state);
+    if (!update || !setImages) return;
+    setImages(state);
     setUpdate(false);
-  }, [update, onUpdate, state]);
+  }, [update, setImages, state]);
 
   const action = React.useCallback(<F extends (...args: any) => any>(fn: F, ...args: Parameters<F>): ReturnType<F> => {
     const result = fn(...args);
@@ -49,10 +68,15 @@ const EditableImageList = ({ label, value = images, id, onUpdate }: EditableList
                 className={clsx('flex gap-1.5 items-center transition ease delay-100', snapshot.isDraggingOver && 'bg-gray-100')}
                 {...provided.droppableProps}
                 ref={provided.innerRef}>
-                <FileButton onChange={data => console.log(data)} accept="image/png,image/jpeg">
+                <FileButton //
+                  onChange={file => file && upload({ variables: { file } })}
+                  accept="image/png,image/jpeg">
                   {props => (
-                    <ActionIcon variant="default" className="w-60 h-auto self-stretch" {...props}>
-                      <IconPlus />
+                    <ActionIcon //
+                      variant="default"
+                      className={clsx('w-60 h-auto self-stretch h-48', loading && 'pointer-events-none')}
+                      {...props}>
+                      {loading ? <Loader /> : <IconPlus />}
                     </ActionIcon>
                   )}
                 </FileButton>
@@ -66,12 +90,17 @@ const EditableImageList = ({ label, value = images, id, onUpdate }: EditableList
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
                           ref={provided.innerRef}>
-                          <Image //
-                            radius="sm"
-                            src={item}
-                            className="cursor-grab"
-                          />
+                          <div className="h-48 overflow-y-hidden flex items-center">
+                            <Image //
+                              radius="sm"
+                              src={item}
+                              className="cursor-grab"
+                              fit="contain"
+                            />
+                          </div>
+
                           <CloseButton //
+                            color="red"
                             className="absolute top-0 right-0"
                             onClick={() => action(remove, index)}
                           />

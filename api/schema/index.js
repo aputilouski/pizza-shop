@@ -11,6 +11,8 @@ const {
 const { Product } = require('@models');
 const OffsetPaginationType = require('./types/offset-pagination');
 const { ProductType, ProductTypeEnum } = require('./types/product');
+const GraphQLUpload = require('graphql-upload/GraphQLUpload.js');
+const { upload } = require('@utils/upload');
 
 const Query = new GraphQLObjectType({
   name: 'query',
@@ -82,6 +84,19 @@ const Mutation = new GraphQLObjectType({
       type: ProductType,
       args: { id: { type: new GraphQLNonNull(GraphQLID) } },
       resolve: (_, { id: _id }) => Product.findOneAndDelete({ _id }),
+    },
+    SingleUpload: {
+      type: new GraphQLNonNull(
+        new GraphQLObjectType({
+          name: 'file',
+          fields: () => ({
+            name: { type: new GraphQLNonNull(GraphQLString) },
+            link: { type: new GraphQLNonNull(GraphQLString) },
+          }),
+        })
+      ),
+      args: { file: { type: new GraphQLNonNull(GraphQLUpload) } },
+      resolve: (_, { file }) => upload(file),
     },
   },
 });
