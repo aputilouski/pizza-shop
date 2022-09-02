@@ -3,7 +3,6 @@ import { Modal, Button, LoadingOverlay, Alert } from '@mantine/core';
 import { useSchema } from './product-schema';
 import { gql, useMutation, useQuery } from '@apollo/client';
 import { useForm, yupResolver } from '@mantine/form';
-import { EditableImageList } from 'components';
 
 type ProductEditorProps = {
   type: ProductKey;
@@ -28,7 +27,12 @@ const GET_PRODUCT = gql`
     product(id: $id) {
       name
       description
-      price
+      prices {
+        variant
+        value
+        weight
+      }
+      images
     }
   }
 `;
@@ -51,7 +55,7 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
     loading: fetchingProduct,
     error: fetchingProductError,
     data,
-  } = useQuery<{ product: Pick<Product, 'name' | 'description' | 'price'> }>(GET_PRODUCT, {
+  } = useQuery<{ product: Pick<Product, 'name' | 'description' | 'prices' | 'images'> }>(GET_PRODUCT, {
     variables: { id },
     fetchPolicy: 'no-cache',
     notifyOnNetworkStatusChange: true,
@@ -60,11 +64,22 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
 
   React.useEffect(() => {
     if (!data) return;
-    const { name, description, price } = data.product;
-    setValues({ name, description, price });
+    const { name, description, prices, images } = data.product;
+    setValues({
+      name,
+      description,
+      prices: prices.map(({ variant, value, weight }) => ({ variant, value, weight })),
+      images,
+    });
   }, [data, setValues]);
 
-  const [save, { loading: executingSave, error: saveError, reset: resetSaveData }] = useMutation(isCreation ? CREATE_PRODUCT : UPDATE_PRODUCT, { refetchQueries: ['GetProducts'] });
+  const [save, { loading: executingSave, error: saveError, data: saveData, reset: resetSaveData }] = useMutation(isCreation ? CREATE_PRODUCT : UPDATE_PRODUCT, { refetchQueries: ['GetProducts'] });
+
+  React.useEffect(() => {
+    if (!saveData) return;
+    onClose();
+    if (isCreation) afterCreation();
+  }, [afterCreation, isCreation, onClose, saveData]);
 
   React.useEffect(() => {
     if (opened) return;
@@ -85,20 +100,13 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
       <LoadingOverlay visible={loading} overlayBlur={2} />
 
       <form //
-        onSubmit={form.onSubmit(values =>
-          save({ variables: { input: isCreation ? { ...values, type } : { ...values, id } } }).then(() => {
-            onClose();
-            if (isCreation) afterCreation();
-          })
-        )}
+        onSubmit={form.onSubmit(values => save({ variables: { input: isCreation ? { ...values, type } : { ...values, id } } }))}
         className="flex flex-col gap-2">
         {isCreation && select}
 
         {fields.map(({ component: Component, props, key }) => (
           <Component key={key} {...props} {...form.getInputProps(key)} />
         ))}
-
-        <EditableImageList />
 
         {error && <Alert color="red">{error.message}</Alert>}
 

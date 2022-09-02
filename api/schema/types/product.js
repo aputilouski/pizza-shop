@@ -1,4 +1,5 @@
-const { GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLEnumType, GraphQLFloat } = require('graphql');
+const { GraphQLList } = require('graphql');
+const { GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLEnumType, GraphQLInt } = require('graphql');
 const { GraphQLDateTime } = require('graphql-iso-date');
 
 const ProductTypeEnum = new GraphQLEnumType({
@@ -12,17 +13,27 @@ const ProductTypeEnum = new GraphQLEnumType({
   },
 });
 
+const ProductPriceType = new GraphQLObjectType({
+  name: 'Price',
+  fields: {
+    variant: { type: new GraphQLNonNull(GraphQLString) },
+    value: { type: new GraphQLNonNull(GraphQLInt) },
+    weight: { type: GraphQLInt },
+  },
+});
+
 const ProductType = new GraphQLObjectType({
-  name: 'product',
-  fields: () => ({
+  name: 'Product',
+  fields: {
     id: { type: new GraphQLNonNull(GraphQLID) },
     type: { type: new GraphQLNonNull(ProductTypeEnum) },
     name: { type: new GraphQLNonNull(GraphQLString) },
     description: { type: new GraphQLNonNull(GraphQLString) },
-    price: { type: new GraphQLNonNull(GraphQLFloat) },
+    prices: { type: new GraphQLNonNull(new GraphQLList(ProductPriceType)) },
+    images: { type: new GraphQLNonNull(new GraphQLList(GraphQLString)) },
     updatedAt: { type: new GraphQLNonNull(GraphQLDateTime) },
     createdAt: { type: new GraphQLNonNull(GraphQLDateTime) },
-  }),
+  },
 });
 
-module.exports = { ProductType, ProductTypeEnum };
+module.exports = { ProductType, ProductTypeEnum, ProductPriceType };

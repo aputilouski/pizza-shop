@@ -2,7 +2,7 @@ import React from 'react';
 import { useListState } from '@mantine/hooks';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import clsx from 'clsx';
-import { Divider, CloseButton, ActionIcon, Image, ScrollArea, FileButton, Loader } from '@mantine/core';
+import { Divider, CloseButton, ActionIcon, Image, ScrollArea, FileButton, Loader, Text } from '@mantine/core';
 import { IconPlus } from '@tabler/icons';
 import { notify } from 'utils';
 import { gql, useMutation } from '@apollo/client';
@@ -12,6 +12,7 @@ type EditableListProps = {
   id?: string;
   value?: string[];
   onChange?: (items: string[]) => void;
+  error?: string;
 };
 
 const SINGLE_UPLOAD = gql`
@@ -23,24 +24,23 @@ const SINGLE_UPLOAD = gql`
   }
 `;
 
-const EditableImageList = ({ label = 'Images', value: images = [], id, onChange: setImages }: EditableListProps) => {
-  const [upload, { loading, error, data, reset }] = useMutation<{ SingleUpload: { name: string; link: string } }>(SINGLE_UPLOAD);
+/**
+ * @param id custom dnd id
+ */
+
+const EditableImageList = ({ label = 'Images', value: images = [], id, onChange: setImages, error }: EditableListProps) => {
+  const [upload, { loading, error: uploadError, data, reset }] = useMutation<{ SingleUpload: { name: string; link: string } }>(SINGLE_UPLOAD);
 
   React.useEffect(() => {
-    if (!error) return;
-    notify.error(error.message);
-  }, [error]);
+    if (!uploadError) return;
+    notify.error(uploadError.message);
+  }, [uploadError]);
 
-  const [state, { reorder, prepend, remove }] = useListState(images);
-
-  const prependRef = React.useRef(prepend);
-  prependRef.current = prepend;
+  const [state, { reorder, prepend, remove, setState }] = useListState(images);
 
   React.useEffect(() => {
-    if (!data) return;
-    prependRef.current(data.SingleUpload.link);
-    reset();
-  }, [data, reset]);
+    setState(images);
+  }, [images, setState]);
 
   const [update, setUpdate] = React.useState(false);
 
@@ -55,6 +55,15 @@ const EditableImageList = ({ label = 'Images', value: images = [], id, onChange:
     setUpdate(true);
     return result;
   }, []);
+
+  const prependRef = React.useRef(prepend);
+  prependRef.current = prepend;
+
+  React.useEffect(() => {
+    if (!data) return;
+    action(prependRef.current, data.SingleUpload.link);
+    reset();
+  }, [action, data, reset]);
 
   return (
     <div className="border border-solid p-2.5 rounded border-gray-300">
@@ -100,7 +109,7 @@ const EditableImageList = ({ label = 'Images', value: images = [], id, onChange:
                           </div>
 
                           <CloseButton //
-                            color="red"
+                            color="blue"
                             className="absolute top-0 right-0"
                             onClick={() => action(remove, index)}
                           />
@@ -115,6 +124,11 @@ const EditableImageList = ({ label = 'Images', value: images = [], id, onChange:
           )}
         </Droppable>
       </DragDropContext>
+      {error && (
+        <Text size="xs" color="red" className="mt-1.5">
+          {error}
+        </Text>
+      )}
     </div>
   );
 };

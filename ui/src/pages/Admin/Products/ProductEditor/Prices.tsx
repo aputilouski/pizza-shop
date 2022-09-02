@@ -3,8 +3,6 @@ import { Checkbox, Text } from '@mantine/core';
 import { NumberInput } from '@mantine/core';
 import { PRICE_LABEL } from 'utils';
 
-type Price = ProductPrice & Pick<PizzaPrice, 'weight'>;
-
 type PricesProps = {
   label?: string;
   className?: string;

@@ -1,16 +1,7 @@
-const {
-  GraphQLSchema, //
-  GraphQLObjectType,
-  GraphQLString,
-  GraphQLNonNull,
-  GraphQLID,
-  GraphQLInputObjectType,
-  GraphQLFloat,
-  GraphQLInt,
-} = require('graphql');
+const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLInputObjectType, GraphQLInt, GraphQLList } = require('graphql');
 const { Product } = require('@models');
 const OffsetPaginationType = require('./types/offset-pagination');
-const { ProductType, ProductTypeEnum } = require('./types/product');
+const { ProductType, ProductTypeEnum, ProductPriceType } = require('./types/product');
 const GraphQLUpload = require('graphql-upload/GraphQLUpload.js');
 const { upload } = require('@utils/upload');
 
@@ -53,7 +44,21 @@ const Mutation = new GraphQLObjectType({
                 type: { type: new GraphQLNonNull(ProductTypeEnum) },
                 name: { type: new GraphQLNonNull(GraphQLString) },
                 description: { type: new GraphQLNonNull(GraphQLString) },
-                price: { type: new GraphQLNonNull(GraphQLFloat) },
+                prices: {
+                  type: new GraphQLNonNull(
+                    new GraphQLList(
+                      new GraphQLInputObjectType({
+                        name: 'CreatePriceData',
+                        fields: {
+                          variant: { type: new GraphQLNonNull(GraphQLString) },
+                          value: { type: new GraphQLNonNull(GraphQLInt) },
+                          weight: { type: GraphQLInt },
+                        },
+                      })
+                    )
+                  ),
+                },
+                images: { type: new GraphQLNonNull(new GraphQLList(GraphQLString)) },
               },
             })
           ),
@@ -72,7 +77,21 @@ const Mutation = new GraphQLObjectType({
                 id: { type: new GraphQLNonNull(GraphQLID) },
                 name: { type: new GraphQLNonNull(GraphQLString) },
                 description: { type: new GraphQLNonNull(GraphQLString) },
-                price: { type: new GraphQLNonNull(GraphQLFloat) },
+                prices: {
+                  type: new GraphQLNonNull(
+                    new GraphQLList(
+                      new GraphQLInputObjectType({
+                        name: 'UpdatePriceData',
+                        fields: {
+                          variant: { type: new GraphQLNonNull(GraphQLString) },
+                          value: { type: new GraphQLNonNull(GraphQLInt) },
+                          weight: { type: GraphQLInt },
+                        },
+                      })
+                    )
+                  ),
+                },
+                images: { type: new GraphQLNonNull(new GraphQLList(GraphQLString)) },
               },
             })
           ),

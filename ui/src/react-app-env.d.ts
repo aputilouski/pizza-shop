@@ -15,10 +15,13 @@ type Product = {
   type: 'pizza' | 'starters' | 'chicken' | 'desserts' | 'drinks';
   name: string;
   description: string;
-  price: number;
+  prices: Array<Price>;
+  images: string[];
   updatedAt: string;
   createdAt: string;
 };
+
+type Price = ProductPrice & Pick<PizzaPrice, 'weight'>;
 
 type ProductKey = Product.type;
 

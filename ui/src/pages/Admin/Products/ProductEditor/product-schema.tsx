@@ -1,6 +1,6 @@
 import React from 'react';
 import { TextInput, Textarea } from '@mantine/core';
-import { EditableList, EditableImageList } from 'components';
+import { EditableImageList } from 'components';
 import { PRODUCT } from 'utils';
 import * as Yup from 'yup';
 import Prices from './Prices';
@@ -38,12 +38,12 @@ const description: Field<typeof Textarea, React.ComponentProps<typeof Textarea>>
   validate: Yup.string().required('Required'),
 };
 
-const prices: Field<typeof Prices, React.ComponentProps<typeof Prices>> = {
+const pizzaPrices: Field<typeof Prices, React.ComponentProps<typeof Prices>> = {
   key: 'prices',
   value: [
-    { variant: 'sm', value: 0, weight: 0 },
-    { variant: 'md', value: 0, weight: 0 },
-    { variant: 'lg', value: 0, weight: 0 },
+    { variant: 'sm', value: 10, weight: 100 },
+    { variant: 'md', value: 10, weight: 100 },
+    { variant: 'lg', value: 10, weight: 100 },
   ],
   component: Prices,
   props: {
@@ -57,17 +57,19 @@ const prices: Field<typeof Prices, React.ComponentProps<typeof Prices>> = {
         weight: Yup.number().min(0, 'Price must be greater than 0').required('Weight is required'),
       })
     )
-    .min(1, 'Minimum 1 price required')
-    .required('Required'),
+    .min(1, 'Minimum 1 price required'),
+};
+
+const images: Field<typeof EditableImageList, React.ComponentProps<typeof EditableImageList>> = {
+  key: 'images',
+  value: [],
+  component: EditableImageList,
+  props: {},
+  validate: Yup.array().min(1, 'Minimum 1 image required'),
 };
 
 const schema = {
-  [PRODUCT.PIZZA]: [
-    name,
-    description,
-    // images: {},
-    prices,
-  ],
+  [PRODUCT.PIZZA]: [name, description, pizzaPrices, images],
   [PRODUCT.STARTERS]: [name, description],
   [PRODUCT.CHICKEN]: [name, description],
   [PRODUCT.DESSERTS]: [name, description],

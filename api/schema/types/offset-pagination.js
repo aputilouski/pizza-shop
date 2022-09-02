@@ -5,7 +5,7 @@ const OffsetPaginationType = (name, type) =>
     name,
     fields: {
       count: { type: new GraphQLNonNull(GraphQLInt) },
-      rows: { type: new GraphQLList(type) },
+      rows: { type: new GraphQLNonNull(new GraphQLList(type)) },
     },
   });
 
