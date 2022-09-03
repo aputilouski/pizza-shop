@@ -32,7 +32,7 @@ type ProductPrice = {
   value: number;
 };
 
-type PizzaPrice = ProductPrice & {
+type ProductPriceWithWeight = ProductPrice & {
   variant: SizeKey;
   weight: number;
 };

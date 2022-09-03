@@ -35,7 +35,7 @@ const description: Field<typeof Textarea, React.ComponentProps<typeof Textarea>>
     maxRows: 5,
     minRows: 3,
   },
-  validate: Yup.string().required('Required'),
+  validate: Yup.string(),
 };
 
 const pizzaPrices: Field<typeof Prices, React.ComponentProps<typeof Prices>> = {
@@ -62,6 +62,23 @@ const pizzaPrices: Field<typeof Prices, React.ComponentProps<typeof Prices>> = {
 
 const prices: Field<typeof Prices, React.ComponentProps<typeof Prices>> = {
   key: 'prices',
+  value: [{ variant: 'default', value: 10, weight: 100 }],
+  component: Prices,
+  props: {
+    variants: ['default'],
+    generatePrice: variant => ({ variant, value: 0, weight: 100 }),
+  },
+  validate: Yup.array()
+    .of(
+      Yup.object().shape({
+        value: Yup.number().min(0.1, 'Price must be greater than 0.1').required('Price value is required'),
+      })
+    )
+    .min(1, 'Minimum 1 price required'),
+};
+
+const drinkPrices: Field<typeof Prices, React.ComponentProps<typeof Prices>> = {
+  key: 'prices',
   value: [{ variant: 'default', value: 10 }],
   component: Prices,
   props: {
@@ -87,10 +104,10 @@ const images: Field<typeof EditableImageList, React.ComponentProps<typeof Editab
 
 const schema = {
   [PRODUCT.PIZZA]: [name, description, pizzaPrices, images],
-  [PRODUCT.STARTERS]: [name, description],
+  [PRODUCT.STARTERS]: [name, description, prices, images],
   [PRODUCT.CHICKEN]: [name, description, prices, images],
-  [PRODUCT.DESSERTS]: [name, description],
-  [PRODUCT.DRINKS]: [name, description],
+  [PRODUCT.DESSERTS]: [name, description, prices, images],
+  [PRODUCT.DRINKS]: [name, description, drinkPrices, images],
 };
 
 export const useSchema = (type: string): [Field<any, any>[], { [key: string]: any }, Yup.AnyObjectSchema] => {

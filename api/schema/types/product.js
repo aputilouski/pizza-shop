@@ -28,7 +28,7 @@ const ProductType = new GraphQLObjectType({
     id: { type: new GraphQLNonNull(GraphQLID) },
     type: { type: new GraphQLNonNull(ProductTypeEnum) },
     name: { type: new GraphQLNonNull(GraphQLString) },
-    description: { type: new GraphQLNonNull(GraphQLString) },
+    description: { type: GraphQLString },
     prices: { type: new GraphQLNonNull(new GraphQLList(ProductPriceType)) },
     images: { type: new GraphQLNonNull(new GraphQLList(GraphQLString)) },
     updatedAt: { type: new GraphQLNonNull(GraphQLDateTime) },

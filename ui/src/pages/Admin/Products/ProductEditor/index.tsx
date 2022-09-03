@@ -49,12 +49,7 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
   const [fields, initialValues, validate] = useSchema(type);
 
   const form = useForm({ initialValues, validate: yupResolver(validate) });
-  const { reset, setValues } = form;
-
-  // update initialValues on type change
-  React.useEffect(() => {
-    setValues(initialValues);
-  }, [type, initialValues, setValues]);
+  const { setValues } = form;
 
   const {
     loading: fetchingProduct,
@@ -88,12 +83,17 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
     if (isCreation) afterCreation();
   }, [afterCreation, isCreation, onClose, saveData]);
 
+  // update initialValues on type change
+  React.useEffect(() => {
+    setValues(initialValues);
+  }, [type, initialValues, setValues]);
+
   // reset form if closed
   React.useEffect(() => {
     if (opened) return;
-    reset();
+    setValues(initialValues);
     resetSaveData();
-  }, [opened, reset, resetSaveData]);
+  }, [initialValues, opened, resetSaveData, setValues]);
 
   const loading = executingSave || fetchingProduct;
   const error = fetchingProductError || saveError;

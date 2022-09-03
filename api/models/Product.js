@@ -12,10 +12,7 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    description: {
-      type: String,
-      required: true,
-    },
+    description: { type: String },
     prices: [
       {
         variant: { type: String, required: true },

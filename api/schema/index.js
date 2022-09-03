@@ -44,7 +44,7 @@ const Mutation = new GraphQLObjectType({
               fields: {
                 type: { type: new GraphQLNonNull(ProductTypeEnum) },
                 name: { type: new GraphQLNonNull(GraphQLString) },
-                description: { type: new GraphQLNonNull(GraphQLString) },
+                description: { type: GraphQLString },
                 prices: {
                   type: new GraphQLNonNull(
                     new GraphQLList(
@@ -77,7 +77,7 @@ const Mutation = new GraphQLObjectType({
               fields: {
                 id: { type: new GraphQLNonNull(GraphQLID) },
                 name: { type: new GraphQLNonNull(GraphQLString) },
-                description: { type: new GraphQLNonNull(GraphQLString) },
+                description: { type: GraphQLString },
                 prices: {
                   type: new GraphQLNonNull(
                     new GraphQLList(
