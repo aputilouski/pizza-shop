@@ -21,7 +21,7 @@ type Product = {
   createdAt: string;
 };
 
-type Price = ProductPrice & Pick<PizzaPrice, 'weight'>;
+type Price = ProductPrice & { weight?: PizzaPrice.weight };
 
 type ProductKey = Product.type;
 

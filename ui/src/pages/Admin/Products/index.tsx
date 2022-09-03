@@ -9,8 +9,8 @@ import { IconEdit, IconTrash } from '@tabler/icons';
 import { openConfirmModal } from '@mantine/modals';
 
 const GET_PRODUCTS = gql`
-  query GetProducts($limit: Int, $offset: Int) {
-    products(limit: $limit, offset: $offset) {
+  query GetProducts($limit: Int, $offset: Int, $type: ProductType) {
+    products(limit: $limit, offset: $offset, type: $type) {
       rows {
         id
         name
@@ -33,10 +33,12 @@ const DELETE_PRODUCT = gql`
 const limit = 10;
 
 const ProductManagment = () => {
+  const [type, setType] = React.useState<ProductKey>(PRODUCT.KEYS[0]);
   const [page, setPage] = React.useState(1);
+  const [editor, setEditor] = React.useState<{ id?: string; opened: boolean }>({ opened: false });
 
   const { loading, error, data } = useQuery<{ products: OffsetPagination<Pick<Product, 'id' | 'name' | 'updatedAt' | 'createdAt'>> }>(GET_PRODUCTS, {
-    variables: { limit, offset: (page - 1) * limit },
+    variables: { limit, offset: (page - 1) * limit, type },
     fetchPolicy: 'no-cache',
     notifyOnNetworkStatusChange: true,
   });
@@ -47,11 +49,7 @@ const ProductManagment = () => {
     if (deleteError?.message) notify.error(deleteError.message);
   }, [deleteError]);
 
-  const [type, setType] = React.useState<ProductKey>(PRODUCT.KEYS[0]);
-  const [editor, setEditor] = React.useState<{ id?: string; opened: boolean }>({ opened: false });
-
   const selectData = React.useMemo(() => PRODUCT.KEYS.map(key => ({ value: key, label: PRODUCT.LABEL[key] })), []);
-
   const select = React.useMemo(
     () => (
       <Select //

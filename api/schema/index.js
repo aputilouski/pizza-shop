@@ -1,4 +1,4 @@
-const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLInputObjectType, GraphQLInt, GraphQLList } = require('graphql');
+const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLInputObjectType, GraphQLInt, GraphQLList, GraphQLFloat } = require('graphql');
 const { Product } = require('@models');
 const OffsetPaginationType = require('./types/offset-pagination');
 const { ProductType, ProductTypeEnum, ProductPriceType } = require('./types/product');
@@ -16,13 +16,14 @@ const Query = new GraphQLObjectType({
     products: {
       type: OffsetPaginationType('products', ProductType),
       args: {
+        type: { type: ProductTypeEnum, defaultValue: 'pizza' },
         limit: { type: GraphQLInt, defaultValue: 10 },
         offset: { type: GraphQLInt, defaultValue: 0 },
       },
-      resolve: async (_, { limit, offset }) => {
+      resolve: async (_, { limit, offset, type }) => {
         const [count, rows] = await Promise.all([
-          Product.find().count(), //
-          Product.find().sort('-createdAt').limit(limit).skip(offset),
+          Product.find({ type }).count(), //
+          Product.find({ type }).sort('-createdAt').limit(limit).skip(offset),
         ]);
         return { count, rows };
       },
@@ -51,7 +52,7 @@ const Mutation = new GraphQLObjectType({
                         name: 'CreatePriceData',
                         fields: {
                           variant: { type: new GraphQLNonNull(GraphQLString) },
-                          value: { type: new GraphQLNonNull(GraphQLInt) },
+                          value: { type: new GraphQLNonNull(GraphQLFloat) },
                           weight: { type: GraphQLInt },
                         },
                       })
@@ -84,7 +85,7 @@ const Mutation = new GraphQLObjectType({
                         name: 'UpdatePriceData',
                         fields: {
                           variant: { type: new GraphQLNonNull(GraphQLString) },
-                          value: { type: new GraphQLNonNull(GraphQLInt) },
+                          value: { type: new GraphQLNonNull(GraphQLFloat) },
                           weight: { type: GraphQLInt },
                         },
                       })

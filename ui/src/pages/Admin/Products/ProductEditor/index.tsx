@@ -51,6 +51,11 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
   const form = useForm({ initialValues, validate: yupResolver(validate) });
   const { reset, setValues } = form;
 
+  // update initialValues on type change
+  React.useEffect(() => {
+    setValues(initialValues);
+  }, [type, initialValues, setValues]);
+
   const {
     loading: fetchingProduct,
     error: fetchingProductError,
@@ -62,6 +67,7 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
     skip: !id,
   });
 
+  // set loaded product
   React.useEffect(() => {
     if (!data) return;
     const { name, description, prices, images } = data.product;
@@ -75,12 +81,14 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
 
   const [save, { loading: executingSave, error: saveError, data: saveData, reset: resetSaveData }] = useMutation(isCreation ? CREATE_PRODUCT : UPDATE_PRODUCT, { refetchQueries: ['GetProducts'] });
 
+  // close editor after save
   React.useEffect(() => {
     if (!saveData) return;
     onClose();
     if (isCreation) afterCreation();
   }, [afterCreation, isCreation, onClose, saveData]);
 
+  // reset form if closed
   React.useEffect(() => {
     if (opened) return;
     reset();

@@ -1,9 +1,9 @@
 const { GraphQLList } = require('graphql');
-const { GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLEnumType, GraphQLInt } = require('graphql');
+const { GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLEnumType, GraphQLInt, GraphQLFloat } = require('graphql');
 const { GraphQLDateTime } = require('graphql-iso-date');
 
 const ProductTypeEnum = new GraphQLEnumType({
-  name: 'Type',
+  name: 'ProductType',
   values: {
     pizza: { value: 'pizza' },
     starters: { value: 'starters' },
@@ -17,7 +17,7 @@ const ProductPriceType = new GraphQLObjectType({
   name: 'Price',
   fields: {
     variant: { type: new GraphQLNonNull(GraphQLString) },
-    value: { type: new GraphQLNonNull(GraphQLInt) },
+    value: { type: new GraphQLNonNull(GraphQLFloat) },
     weight: { type: GraphQLInt },
   },
 });

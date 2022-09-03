@@ -16,12 +16,6 @@ const userSchema = new Schema(
       type: String,
       required: true,
     },
-    // price: {
-    //   type: Number,
-    //   required: true,
-    //   get: v => (v / 100).toFixed(2),
-    //   set: v => v * 100,
-    // },
     prices: [
       {
         variant: { type: String, required: true },

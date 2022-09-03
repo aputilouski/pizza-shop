@@ -60,6 +60,23 @@ const pizzaPrices: Field<typeof Prices, React.ComponentProps<typeof Prices>> = {
     .min(1, 'Minimum 1 price required'),
 };
 
+const prices: Field<typeof Prices, React.ComponentProps<typeof Prices>> = {
+  key: 'prices',
+  value: [{ variant: 'default', value: 10 }],
+  component: Prices,
+  props: {
+    variants: ['default'],
+    generatePrice: variant => ({ variant, value: 0 }),
+  },
+  validate: Yup.array()
+    .of(
+      Yup.object().shape({
+        value: Yup.number().min(0.1, 'Price must be greater than 0.1').required('Price value is required'),
+      })
+    )
+    .min(1, 'Minimum 1 price required'),
+};
+
 const images: Field<typeof EditableImageList, React.ComponentProps<typeof EditableImageList>> = {
   key: 'images',
   value: [],
@@ -71,7 +88,7 @@ const images: Field<typeof EditableImageList, React.ComponentProps<typeof Editab
 const schema = {
   [PRODUCT.PIZZA]: [name, description, pizzaPrices, images],
   [PRODUCT.STARTERS]: [name, description],
-  [PRODUCT.CHICKEN]: [name, description],
+  [PRODUCT.CHICKEN]: [name, description, prices, images],
   [PRODUCT.DESSERTS]: [name, description],
   [PRODUCT.DRINKS]: [name, description],
 };

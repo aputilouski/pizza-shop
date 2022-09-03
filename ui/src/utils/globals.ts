@@ -28,4 +28,5 @@ export const PRICE_LABEL = {
   sm: 'Small',
   md: 'Medium',
   lg: 'Large',
+  default: 'Default',
 };
