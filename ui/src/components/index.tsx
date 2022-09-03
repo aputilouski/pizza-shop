@@ -5,6 +5,5 @@ export { default as AutoSignInIndicator } from './hoc/AutoSignInIndicator';
 
 export { default as Layout } from './layout';
 
-export { default as ProductCard } from './special/ProductCard';
 export { default as EditableList } from './special/EditableList';
 export { default as EditableImageList } from './special/EditableImageList';

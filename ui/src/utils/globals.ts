@@ -4,8 +4,6 @@ const CHICKEN = 'chicken';
 const DESSERTS = 'desserts';
 const DRINKS = 'drinks';
 
-const KEYS = [PIZZA, STARTERS, CHICKEN, DESSERTS, DRINKS] as const;
-
 export const PRODUCT = {
   PIZZA,
   STARTERS,
@@ -13,7 +11,7 @@ export const PRODUCT = {
   DESSERTS,
   DRINKS,
 
-  KEYS,
+  TYPE: [PIZZA, STARTERS, CHICKEN, DESSERTS, DRINKS] as const,
 
   LABEL: {
     [PIZZA]: 'Pizza',

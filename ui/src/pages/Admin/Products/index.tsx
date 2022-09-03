@@ -1,5 +1,5 @@
 import React from 'react';
-import { Button, Select, Table, Pagination, LoadingOverlay, ActionIcon, Text } from '@mantine/core';
+import { Button, Select, Table, Pagination, Overlay, ActionIcon, Text } from '@mantine/core';
 import { ErrorAlert } from 'components';
 import ProductEditor from './ProductEditor';
 import { notify, PRODUCT } from 'utils';
@@ -33,7 +33,7 @@ const DELETE_PRODUCT = gql`
 const limit = 10;
 
 const ProductManagment = () => {
-  const [type, setType] = React.useState<ProductKey>(PRODUCT.KEYS[0]);
+  const [type, setType] = React.useState<ProductKey>(PRODUCT.TYPE[0]);
   const [page, setPage] = React.useState(1);
   const [editor, setEditor] = React.useState<{ id?: string; opened: boolean }>({ opened: false });
 
@@ -49,7 +49,7 @@ const ProductManagment = () => {
     if (deleteError?.message) notify.error(deleteError.message);
   }, [deleteError]);
 
-  const selectData = React.useMemo(() => PRODUCT.KEYS.map(key => ({ value: key, label: PRODUCT.LABEL[key] })), []);
+  const selectData = React.useMemo(() => PRODUCT.TYPE.map(key => ({ value: key, label: PRODUCT.LABEL[key] })), []);
   const select = React.useMemo(
     () => (
       <Select //
@@ -93,8 +93,8 @@ const ProductManagment = () => {
 
       {error && <ErrorAlert message={error.message} />}
 
-      <div className="relative">
-        <LoadingOverlay visible={loading || deleteLoading} overlayBlur={2} />
+      <div className="relative py-1">
+        {(loading || deleteLoading) && <Overlay opacity={0.4} color="white" />}
 
         <Table striped highlightOnHover>
           <thead>

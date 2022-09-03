@@ -1,16 +1,47 @@
-import MenuSection from './MenuSection';
+import { gql, useQuery } from '@apollo/client';
+import ProductSection from './ProductSection';
+import { PRODUCT } from 'utils';
+import { Alert } from '@mantine/core';
+import { ProvidePreview } from './PreviewProvider';
+
+const GET_All_PRODUCTS = gql`
+  query GetAllProducts {
+    allProducts {
+      id
+      type
+      name
+      description
+      prices {
+        variant
+        value
+        weight
+      }
+      images
+    }
+  }
+`;
 
 const MainPage = () => {
+  const { loading, error, data } = useQuery<{ allProducts: Product[] }>(GET_All_PRODUCTS);
+
   return (
     <div>
-      <p className="font-bold text-4xl text-center">Menu</p>
+      <p className="font-bold text-4xl text-center mb-3">Menu</p>
 
-      <MenuSection title="Pizza" />
+      {error && <Alert color="red">{error.message}</Alert>}
 
-      <h4 className="text-2xl border-solid border-0 border-b">Starters</h4>
-      <h4 className="text-2xl border-solid border-0 border-b">Chicken</h4>
-      <h4 className="text-2xl border-solid border-0 border-b">Desserts</h4>
-      <h4 className="text-2xl border-solid border-0 border-b">Drinks</h4>
+      <ProvidePreview>
+        {data &&
+          PRODUCT.TYPE.map(type => {
+            return (
+              <ProductSection //
+                key={type}
+                title={PRODUCT.LABEL[type]}
+                items={data?.allProducts.filter(p => p.type === type)}
+              />
+            );
+          })}
+      </ProvidePreview>
     </div>
   );
 };

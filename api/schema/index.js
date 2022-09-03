@@ -28,6 +28,10 @@ const Query = new GraphQLObjectType({
         return { count, rows };
       },
     },
+    allProducts: {
+      type: new GraphQLList(ProductType),
+      resolve: () => Product.find().sort('-createdAt'),
+    },
   },
 });
 
