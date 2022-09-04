@@ -37,6 +37,12 @@ type ProductPriceWithWeight = ProductPrice & {
   weight: number;
 };
 
+type CartItem = {
+  id: string; // Product id
+  variant: string; // Price variant
+  amount: number;
+};
+
 type CursorPagination<T> = {
   totalCount: number;
   edges: {

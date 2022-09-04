@@ -3,6 +3,7 @@ import ProductSection from './ProductSection';
 import { PRODUCT } from 'utils';
 import { Alert } from '@mantine/core';
 import { ProvidePreview } from './PreviewProvider';
+import { ProvideCart } from './CartProvider';
 
 const GET_All_PRODUCTS = gql`
   query GetAllProducts {
@@ -31,16 +32,18 @@ const MainPage = () => {
       {error && <Alert color="red">{error.message}</Alert>}
 
       <ProvidePreview>
-        {data &&
-          PRODUCT.TYPE.map(type => {
-            return (
-              <ProductSection //
-                key={type}
-                title={PRODUCT.LABEL[type]}
-                items={data?.allProducts.filter(p => p.type === type)}
-              />
-            );
-          })}
+        <ProvideCart>
+          {data &&
+            PRODUCT.TYPE.map(type => {
+              return (
+                <ProductSection //
+                  key={type}
+                  title={PRODUCT.LABEL[type]}
+                  items={data?.allProducts.filter(p => p.type === type)}
+                />
+              );
+            })}
+        </ProvideCart>
       </ProvidePreview>
     </div>
   );

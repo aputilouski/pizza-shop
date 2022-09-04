@@ -22,13 +22,29 @@ const PreviewContext = React.createContext<(images: string[]) => void>(() => {})
 
 export const ProvidePreview = ({ children }: { children: React.ReactNode }) => {
   const [images, setImages] = React.useState<string[]>([]);
+  const [open, setOpen] = React.useState(false);
+
+  const timerID = React.useRef<NodeJS.Timeout>();
+
+  React.useEffect(() => {
+    if (open) return;
+    timerID.current = setTimeout(setImages.bind(undefined, []), 1000);
+  }, [open]);
+
+  const preview = React.useCallback((images: string[]) => {
+    clearTimeout(timerID.current);
+    setImages(images);
+    setOpen(true);
+  }, []);
+
   return (
-    <PreviewContext.Provider value={setImages}>
+    <PreviewContext.Provider value={preview}>
       <Modal //
+        centered
         size={1024}
         withCloseButton={false}
-        opened={Boolean(images.length)}
-        onClose={() => setImages([])}>
+        opened={open}
+        onClose={() => setOpen(false)}>
         <ImageSlider images={images} />
       </Modal>
       {children}
