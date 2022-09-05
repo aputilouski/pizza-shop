@@ -1,8 +1,9 @@
 import React from 'react';
 import { Modal, Button, LoadingOverlay, Alert } from '@mantine/core';
 import { useSchema } from './product-schema';
-import { gql, useMutation, useQuery } from '@apollo/client';
+import { useMutation, useQuery } from '@apollo/client';
 import { useForm, yupResolver } from '@mantine/form';
+import { CREATE_PRODUCT, GET_PRODUCT, UPDATE_PRODUCT } from 'gql';
 
 type ProductEditorProps = {
   type: ProductKey;
@@ -13,37 +14,6 @@ type ProductEditorProps = {
   afterCreation: () => void;
   select: JSX.Element;
 };
-
-const CREATE_PRODUCT = gql`
-  mutation CreateProduct($input: CreateProductData!) {
-    CreateProduct(input: $input) {
-      id
-    }
-  }
-`;
-
-const GET_PRODUCT = gql`
-  query GetProduct($id: ID!) {
-    product(id: $id) {
-      name
-      description
-      prices {
-        variant
-        value
-        weight
-      }
-      images
-    }
-  }
-`;
-
-const UPDATE_PRODUCT = gql`
-  mutation UpdateProduct($input: UpdateProductData!) {
-    UpdateProduct(input: $input) {
-      id
-    }
-  }
-`;
 
 const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCreation }: ProductEditorProps) => {
   const [fields, initialValues, validate] = useSchema(type);

@@ -14,7 +14,7 @@ type Product = {
   id: string;
   type: 'pizza' | 'starters' | 'chicken' | 'desserts' | 'drinks';
   name: string;
-  description: string;
+  description?: string;
   prices: Array<Price>;
   images: string[];
   updatedAt: string;

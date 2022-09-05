@@ -3,32 +3,11 @@ import { Button, Select, Table, Pagination, Overlay, ActionIcon, Text } from '@m
 import { ErrorAlert } from 'components';
 import ProductEditor from './ProductEditor';
 import { notify, PRODUCT } from 'utils';
-import { gql, useQuery, useMutation } from '@apollo/client';
+import { useQuery, useMutation } from '@apollo/client';
 import moment from 'moment';
 import { IconEdit, IconTrash } from '@tabler/icons';
 import { openConfirmModal } from '@mantine/modals';
-
-const GET_PRODUCTS = gql`
-  query GetProducts($limit: Int, $offset: Int, $type: ProductType) {
-    products(limit: $limit, offset: $offset, type: $type) {
-      rows {
-        id
-        name
-        updatedAt
-        createdAt
-      }
-      count
-    }
-  }
-`;
-
-const DELETE_PRODUCT = gql`
-  mutation DeleteProduct($id: ID!) {
-    DeleteProduct(id: $id) {
-      id
-    }
-  }
-`;
+import { GET_PRODUCTS, DELETE_PRODUCT } from 'gql';
 
 const limit = 10;
 

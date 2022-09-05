@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
-import { Indicator, ActionIcon, Image } from '@mantine/core';
-import { IconShoppingCart } from '@tabler/icons';
+import { Image } from '@mantine/core';
+import CartModal from './CartModal';
+import { ProvideCart } from './CartProvider';
 
 const Header = () => (
   <div className="flex justify-between items-center py-2.5">
@@ -12,12 +13,9 @@ const Header = () => (
         <h1 className="m-0">Pizza Shop</h1>
       </div>
     </Link>
-
-    <Indicator color="red" withBorder size={16} offset={4}>
-      <ActionIcon color="orange" size="xl" radius="xl" variant="light">
-        <IconShoppingCart />
-      </ActionIcon>
-    </Indicator>
+    <ProvideCart>
+      <CartModal />
+    </ProvideCart>
   </div>
 );
 
