@@ -1,9 +1,10 @@
 const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLInputObjectType, GraphQLInt, GraphQLList, GraphQLFloat } = require('graphql');
 const { Product } = require('@models');
 const OffsetPaginationType = require('./types/offset-pagination');
-const { ProductType, ProductTypeEnum, ProductPriceType } = require('./types/product');
+const { ProductType, ProductTypeEnum } = require('./types/product');
 const GraphQLUpload = require('graphql-upload/GraphQLUpload.js');
 const { upload } = require('@utils/upload');
+const { isAdmin } = require('@utils/user');
 
 const Query = new GraphQLObjectType({
   name: 'query',
@@ -69,7 +70,10 @@ const Mutation = new GraphQLObjectType({
           ),
         },
       },
-      resolve: (_, { input }) => Product.create(input),
+      resolve: (_, { input }, context) => {
+        if (isAdmin(context.user)) return Product.create(input);
+        else throw new Error('Forbidden');
+      },
     },
     UpdateProduct: {
       type: ProductType,
@@ -102,12 +106,18 @@ const Mutation = new GraphQLObjectType({
           ),
         },
       },
-      resolve: (_, { input }) => Product.findOneAndUpdate({ _id: input.id }, input),
+      resolve: (_, { input }, context) => {
+        if (isAdmin(context.user)) return Product.findOneAndUpdate({ _id: input.id }, input);
+        else throw new Error('Forbidden');
+      },
     },
     DeleteProduct: {
       type: ProductType,
       args: { id: { type: new GraphQLNonNull(GraphQLID) } },
-      resolve: (_, { id: _id }) => Product.findOneAndDelete({ _id }),
+      resolve: (_, { id: _id }, context) => {
+        if (isAdmin(context.user)) return Product.findOneAndDelete({ _id });
+        else throw new Error('Forbidden');
+      },
     },
     SingleUpload: {
       type: new GraphQLNonNull(
@@ -120,7 +130,10 @@ const Mutation = new GraphQLObjectType({
         })
       ),
       args: { file: { type: new GraphQLNonNull(GraphQLUpload) } },
-      resolve: (_, { file }) => upload(file),
+      resolve: (_, { file }, context) => {
+        if (isAdmin(context.user)) return upload(file);
+        else throw new Error('Forbidden');
+      },
     },
   },
 });

@@ -17,7 +17,7 @@ type CartItemCardProps = {
 
 const CartItemCard = ({ product, increase, decrease, value, price, remove }: CartItemCardProps) => (
   <Card shadow="sm" radius="sm" withBorder>
-    <p className="mb-1">{product.name}</p>
+    <p className="mb-1 font-semibold">{product.name}</p>
     {product.description && <p className="text-sm mb-2">{product.description}</p>}
     <div className="flex items-center justify-between gap-4">
       <div>
