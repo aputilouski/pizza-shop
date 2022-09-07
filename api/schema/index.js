@@ -1,7 +1,8 @@
 const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLInputObjectType, GraphQLInt, GraphQLList, GraphQLFloat } = require('graphql');
-const { Product } = require('@models');
+const { Product, Order } = require('@models');
 const OffsetPaginationType = require('./types/offset-pagination');
 const { ProductType, ProductTypeEnum } = require('./types/product');
+const { OrderType } = require('./types/order');
 const GraphQLUpload = require('graphql-upload/GraphQLUpload.js');
 const { upload } = require('@utils/upload');
 const { isAdmin } = require('@utils/user');
@@ -135,10 +136,79 @@ const Mutation = new GraphQLObjectType({
         else throw new Error('Forbidden');
       },
     },
+    CreateOrder: {
+      type: OrderType,
+      args: {
+        input: {
+          type: new GraphQLNonNull(
+            new GraphQLInputObjectType({
+              name: 'CreateOrderData',
+              fields: {
+                address: {
+                  type: new GraphQLNonNull(
+                    new GraphQLInputObjectType({
+                      name: 'CreateOrderAddressData',
+                      fields: {
+                        city: { type: new GraphQLNonNull(GraphQLString) },
+                        addr: { type: new GraphQLNonNull(GraphQLString) },
+                        entrance: { type: GraphQLString },
+                        floor: { type: GraphQLString },
+                        flat: { type: GraphQLString },
+                        phone: { type: new GraphQLNonNull(GraphQLString) },
+                        note: { type: GraphQLString },
+                      },
+                    })
+                  ),
+                },
+                items: {
+                  type: new GraphQLNonNull(
+                    new GraphQLList(
+                      new GraphQLInputObjectType({
+                        name: 'CreateOrderItemData',
+                        fields: {
+                          id: { type: new GraphQLNonNull(GraphQLID) },
+                          variant: { type: new GraphQLNonNull(GraphQLString) },
+                          amount: { type: new GraphQLNonNull(GraphQLInt) },
+                        },
+                      })
+                    )
+                  ),
+                },
+              },
+            })
+          ),
+        },
+      },
+      resolve: async (_, { input }) => {
+        const { address, items: cartItams } = input;
+        let total = 0;
+        const products = await Product.find({ _id: { $in: cartItams.map(item => item.id) } });
+        const items = cartItams.map(item => {
+          const product = products.find(p => p.id === item.id);
+          if (!product) throw new Error('Product not found');
+          const productPrice = product.prices.find(p => p.variant === item.variant);
+          if (!productPrice) throw new Error('Price not found');
+          total += productPrice.value * item.amount;
+          return {
+            name: product.name,
+            amount: item.amount,
+            variant: item.variant,
+            price: productPrice.value,
+          };
+        });
+        return Order.create({ address, items, total });
+      },
+    },
   },
 });
+
+// const Subscription = new GraphQLObjectType({
+//   name: 'subscription',
+//   fields: {},
+// });
 
 module.exports = new GraphQLSchema({
   query: Query,
   mutation: Mutation,
+  // subscription: Subscription,
 });

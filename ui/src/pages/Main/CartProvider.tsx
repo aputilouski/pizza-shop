@@ -9,6 +9,7 @@ type CartContextType = {
   increase: (item: Omit<CartItem, 'amount'>) => void;
   decrease: (item: Omit<CartItem, 'amount'>) => void;
   remove: (item: CartItem) => void;
+  clear: () => void;
 };
 
 const CartContext = React.createContext<CartContextType>({
@@ -17,6 +18,7 @@ const CartContext = React.createContext<CartContextType>({
   increase: () => {},
   decrease: () => {},
   remove: () => {},
+  clear: () => {},
 });
 
 export const ProvideCart = ({ children }: { children: React.ReactNode }) => {
@@ -50,6 +52,7 @@ export const ProvideCart = ({ children }: { children: React.ReactNode }) => {
       items.splice(itemIndex, 1);
       cartItems([...items]);
     },
+    clear: () => cartItems([]),
   };
   return <CartContext.Provider value={context}>{children}</CartContext.Provider>;
 };

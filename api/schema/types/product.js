@@ -1,5 +1,4 @@
-const { GraphQLList } = require('graphql');
-const { GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLEnumType, GraphQLInt, GraphQLFloat } = require('graphql');
+const { GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLEnumType, GraphQLInt, GraphQLFloat, GraphQLList } = require('graphql');
 const { GraphQLDateTime } = require('graphql-iso-date');
 
 const ProductTypeEnum = new GraphQLEnumType({

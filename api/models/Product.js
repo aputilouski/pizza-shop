@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 const { Schema } = mongoose;
 
-const userSchema = new Schema(
+const schema = new Schema(
   {
     type: {
       type: String,
@@ -20,7 +20,7 @@ const userSchema = new Schema(
           type: Number,
           required: true,
           get: v => (v / 100).toFixed(2),
-          set: v => v * 100,
+          set: v => Math.ceil(v * 100),
         },
         weight: Number,
       },
@@ -35,4 +35,4 @@ const userSchema = new Schema(
   }
 );
 
-module.exports = mongoose.model('Product', userSchema);
+module.exports = mongoose.model('Product', schema);
