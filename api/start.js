@@ -1,5 +1,7 @@
 require('./register-module-aliases');
 
+const http = require('http');
+const ws = require('ws');
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
@@ -11,6 +13,7 @@ db.connect();
 
 const { graphqlHTTP } = require('express-graphql');
 const graphqlUploadExpress = require('graphql-upload/graphqlUploadExpress.js');
+const { useServer } = require('graphql-ws/lib/use/ws');
 const schema = require('./schema');
 
 const indexRouter = require('./routes/index');
@@ -46,4 +49,14 @@ app.use('/api/auth', authRouter);
 
 app.use((req, res) => res.status(404).end());
 
-module.exports = app;
+module.exports = (port, onError, onListening) => {
+  const server = http.createServer(app);
+
+  const wsServer = new ws.Server({ server, path: '/subscriptions' });
+  useServer({ schema }, wsServer);
+
+  server.listen(port);
+
+  server.on('error', onError);
+  server.on('listening', onListening);
+};

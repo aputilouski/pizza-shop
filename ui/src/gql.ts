@@ -78,30 +78,37 @@ export const CREATE_ORDER = gql`
   }
 `;
 
+const ORDER_FRAGMENT = gql`
+  fragment OrderFields on Order {
+    number
+    status
+    address {
+      city
+      addr
+      entrance
+      floor
+      flat
+      phone
+      note
+    }
+    items {
+      name
+      amount
+      variant
+      price
+    }
+    total
+  }
+`;
+
 export const GET_ORDERS = gql`
+  ${ORDER_FRAGMENT}
   query GetOrders($first: Int, $after: String) {
     orders(first: $first, after: $after) {
       totalCount
       edges {
         node {
-          number
-          status
-          address {
-            city
-            addr
-            entrance
-            floor
-            flat
-            phone
-            note
-          }
-          items {
-            name
-            amount
-            variant
-            price
-          }
-          total
+          ...OrderFields
         }
         cursor
       }
@@ -111,6 +118,15 @@ export const GET_ORDERS = gql`
         hasNextPage
         hasPreviousPage
       }
+    }
+  }
+`;
+
+export const ORDER_SUBSCRIPTION = gql`
+  ${ORDER_FRAGMENT}
+  subscription OnOrderCreated {
+    OrderCreated {
+      ...OrderFields
     }
   }
 `;

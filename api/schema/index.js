@@ -10,6 +10,9 @@ const { isAdmin } = require('@utils/user');
 const { decodeCursor, encodeCursor, useCursor } = require('@utils/cursor');
 const mongoose = require('mongoose');
 
+const { PubSub } = require('graphql-subscriptions');
+const pubsub = new PubSub();
+
 const Query = new GraphQLObjectType({
   name: 'query',
   fields: {
@@ -19,7 +22,7 @@ const Query = new GraphQLObjectType({
       resolve: (_, { id }) => Product.findById(id),
     },
     products: {
-      type: OffsetPaginationType('products', ProductType),
+      type: new GraphQLNonNull(OffsetPaginationType('products', ProductType)),
       args: {
         type: { type: ProductTypeEnum, defaultValue: 'pizza' },
         limit: { type: GraphQLInt, defaultValue: 10 },
@@ -34,11 +37,11 @@ const Query = new GraphQLObjectType({
       },
     },
     allProducts: {
-      type: new GraphQLList(ProductType),
+      type: new GraphQLNonNull(new GraphQLList(ProductType)),
       resolve: () => Product.find().sort('-createdAt'),
     },
     orders: {
-      type: CursorPaginationType('orders', OrderType),
+      type: new GraphQLNonNull(CursorPaginationType('orders', OrderType)),
       args: {
         first: { type: GraphQLInt, defaultValue: 10 },
         after: { type: GraphQLString },
@@ -69,7 +72,7 @@ const Mutation = new GraphQLObjectType({
   name: 'mutation',
   fields: {
     CreateProduct: {
-      type: ProductType,
+      type: new GraphQLNonNull(ProductType),
       args: {
         input: {
           type: new GraphQLNonNull(
@@ -105,7 +108,7 @@ const Mutation = new GraphQLObjectType({
       },
     },
     UpdateProduct: {
-      type: ProductType,
+      type: new GraphQLNonNull(ProductType),
       args: {
         input: {
           type: new GraphQLNonNull(
@@ -141,7 +144,7 @@ const Mutation = new GraphQLObjectType({
       },
     },
     DeleteProduct: {
-      type: ProductType,
+      type: new GraphQLNonNull(ProductType),
       args: { id: { type: new GraphQLNonNull(GraphQLID) } },
       resolve: (_, { id: _id }, context) => {
         if (isAdmin(context.user)) return Product.findOneAndDelete({ _id });
@@ -165,7 +168,7 @@ const Mutation = new GraphQLObjectType({
       },
     },
     CreateOrder: {
-      type: OrderType,
+      type: new GraphQLNonNull(OrderType),
       args: {
         input: {
           type: new GraphQLNonNull(
@@ -224,19 +227,27 @@ const Mutation = new GraphQLObjectType({
             price: productPrice.value,
           };
         });
-        return Order.create({ address, items, total });
+        const order = await Order.create({ address, items, total });
+        pubsub.publish('order', order);
+        return order;
       },
     },
   },
 });
 
-// const Subscription = new GraphQLObjectType({
-//   name: 'subscription',
-//   fields: {},
-// });
+const Subscription = new GraphQLObjectType({
+  name: 'subscription',
+  fields: {
+    OrderCreated: {
+      type: new GraphQLNonNull(OrderType),
+      subscribe: () => pubsub.asyncIterator('order'),
+      resolve: body => body,
+    },
+  },
+});
 
 module.exports = new GraphQLSchema({
   query: Query,
   mutation: Mutation,
-  // subscription: Subscription,
+  subscription: Subscription,
 });
