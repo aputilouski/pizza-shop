@@ -57,7 +57,7 @@ const validate = yupResolver(
 const CartModal = () => {
   const [open, setOpen] = React.useState<boolean>(false);
   const [step, setStep] = React.useState<number>(1);
-  const [total, setTotal] = React.useState(0);
+  const [total, setTotal] = React.useState('0');
 
   const form = useForm({
     initialValues: { city: '', addr: '', entrance: '', floor: '', flat: '', phone: '', note: '' },
@@ -88,7 +88,7 @@ const CartModal = () => {
       if (!price) return;
       total += price.value * item.amount;
     });
-    setTotal(total);
+    setTotal(Number(total).toFixed(2));
   }, [items, data?.allProducts]);
 
   if (!data?.allProducts) return null;
@@ -147,7 +147,7 @@ const CartModal = () => {
 
             {items.length >= 1 && (
               <div className="mt-3 py-2">
-                <p className="text-center mb-1.5 text-lg font-semibold">Total: {Number(total).toFixed(2)} $</p>
+                <p className="text-center mb-1.5 text-lg font-semibold">Total: {total} $</p>
                 <Button fullWidth onClick={() => setStep(2)}>
                   Order
                 </Button>

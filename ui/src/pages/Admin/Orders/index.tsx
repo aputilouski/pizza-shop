@@ -1,17 +1,32 @@
-import { useQuery, useSubscription } from '@apollo/client';
+import React from 'react';
+import { useQuery } from '@apollo/client';
 import { GET_ORDERS, ORDER_SUBSCRIPTION } from 'gql';
 import { Overlay, Button } from '@mantine/core';
 import { ErrorAlert } from 'components';
 import OrderCard from './OrderCard';
 
 const OrderManagement = () => {
-  const { loading, error, data, fetchMore } = useQuery<{ orders: CursorPagination<Order> }>(GET_ORDERS, {
+  const { loading, error, data, fetchMore, subscribeToMore } = useQuery<{ orders: CursorPagination<Order> }>(GET_ORDERS, {
     variables: { first: 6 },
     notifyOnNetworkStatusChange: true,
   });
 
-  const subscription = useSubscription(ORDER_SUBSCRIPTION);
-  console.log(subscription);
+  React.useEffect(() => {
+    subscribeToMore<{ OrderCreatedEdge: { node: Order; cursor: string } }>({
+      document: ORDER_SUBSCRIPTION,
+      updateQuery: (prev, { subscriptionData }) => {
+        const { node, cursor } = subscriptionData.data.OrderCreatedEdge;
+        return {
+          ...prev,
+          orders: {
+            totalCount: prev.orders.totalCount + 1,
+            edges: [{ node, cursor }, ...prev.orders.edges],
+            pageInfo: { ...prev.orders.pageInfo, startCursor: cursor },
+          },
+        };
+      },
+    });
+  }, [subscribeToMore]);
 
   return (
     <div className="relative">

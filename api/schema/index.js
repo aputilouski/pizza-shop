@@ -238,10 +238,21 @@ const Mutation = new GraphQLObjectType({
 const Subscription = new GraphQLObjectType({
   name: 'subscription',
   fields: {
-    OrderCreated: {
-      type: new GraphQLNonNull(OrderType),
+    OrderCreatedEdge: {
+      type: new GraphQLNonNull(
+        new GraphQLObjectType({
+          name: 'OrderEdge',
+          fields: {
+            node: { type: new GraphQLNonNull(OrderType) },
+            cursor: { type: new GraphQLNonNull(GraphQLString) },
+          },
+        })
+      ),
       subscribe: () => pubsub.asyncIterator('order'),
-      resolve: body => body,
+      resolve: order => ({
+        node: order,
+        cursor: encodeCursor(order.id),
+      }),
     },
   },
 });

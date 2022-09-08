@@ -80,6 +80,7 @@ export const CREATE_ORDER = gql`
 
 const ORDER_FRAGMENT = gql`
   fragment OrderFields on Order {
+    id
     number
     status
     address {
@@ -125,8 +126,11 @@ export const GET_ORDERS = gql`
 export const ORDER_SUBSCRIPTION = gql`
   ${ORDER_FRAGMENT}
   subscription OnOrderCreated {
-    OrderCreated {
-      ...OrderFields
+    OrderCreatedEdge {
+      node {
+        ...OrderFields
+      }
+      cursor
     }
   }
 `;
