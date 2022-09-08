@@ -44,14 +44,7 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
     });
   }, [data, setValues]);
 
-  const [save, { loading: executingSave, error: saveError, data: saveData, reset: resetSaveData }] = useMutation(isCreation ? CREATE_PRODUCT : UPDATE_PRODUCT, { refetchQueries: ['GetProducts'] });
-
-  // close editor after save
-  React.useEffect(() => {
-    if (!saveData) return;
-    onClose();
-    if (isCreation) afterCreation();
-  }, [afterCreation, isCreation, onClose, saveData]);
+  const [save, { loading: executingSave, error: saveError, reset: resetSaveData }] = useMutation(isCreation ? CREATE_PRODUCT : UPDATE_PRODUCT, { refetchQueries: ['GetProducts'] });
 
   // update initialValues on type change
   React.useEffect(() => {
@@ -78,7 +71,15 @@ const ProductEditor = ({ type, id, isCreation, opened, onClose, select, afterCre
       <LoadingOverlay visible={loading} overlayBlur={2} />
 
       <form //
-        onSubmit={form.onSubmit(values => save({ variables: { input: isCreation ? { ...values, type } : { ...values, id } } }))}
+        onSubmit={form.onSubmit(values =>
+          save({
+            variables: { input: isCreation ? { ...values, type } : { ...values, id } },
+            onCompleted: () => {
+              onClose();
+              if (isCreation) afterCreation();
+            },
+          })
+        )}
         className="flex flex-col gap-2">
         {isCreation && select}
 

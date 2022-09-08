@@ -1,5 +1,5 @@
 import { ApolloClient, InMemoryCache, split } from '@apollo/client';
-import { getMainDefinition } from '@apollo/client/utilities';
+import { getMainDefinition, relayStylePagination } from '@apollo/client/utilities';
 import { createUploadLink } from 'apollo-upload-client';
 import { setContext } from '@apollo/client/link/context';
 import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
@@ -24,11 +24,13 @@ const splitLink = split(
 
 const client = new ApolloClient({
   cache: new InMemoryCache({
-    // typePolicies: {
-    //   Query: {
-    //     fields: {},
-    //   },
-    // },
+    typePolicies: {
+      Query: {
+        fields: {
+          orders: relayStylePagination(),
+        },
+      },
+    },
   }),
   link: splitLink,
 });

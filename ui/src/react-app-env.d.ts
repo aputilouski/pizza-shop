@@ -43,6 +43,27 @@ type CartItem = {
   amount: number;
 };
 
+type Order = {
+  number: number;
+  status: string;
+  address: {
+    city: string;
+    addr: string;
+    entrance: string;
+    floor: string;
+    flat: string;
+    phone: string;
+    note: string;
+  };
+  items: {
+    name: string;
+    amount: number;
+    variant: string;
+    price: string;
+  }[];
+  total: string;
+};
+
 type CursorPagination<T> = {
   totalCount: number;
   edges: {

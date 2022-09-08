@@ -4,10 +4,7 @@ const AutoIncrement = require('mongoose-sequence')(mongoose);
 
 const schema = new Schema(
   {
-    number: {
-      type: Number,
-      get: v => '000' + v,
-    },
+    number: Number,
     status: {
       type: String,
       required: true,

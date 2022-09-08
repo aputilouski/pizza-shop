@@ -77,3 +77,40 @@ export const CREATE_ORDER = gql`
     }
   }
 `;
+
+export const GET_ORDERS = gql`
+  query GetOrders($first: Int, $after: String) {
+    orders(first: $first, after: $after) {
+      totalCount
+      edges {
+        node {
+          number
+          status
+          address {
+            city
+            addr
+            entrance
+            floor
+            flat
+            phone
+            note
+          }
+          items {
+            name
+            amount
+            variant
+            price
+          }
+          total
+        }
+        cursor
+      }
+      pageInfo {
+        startCursor
+        endCursor
+        hasNextPage
+        hasPreviousPage
+      }
+    }
+  }
+`;

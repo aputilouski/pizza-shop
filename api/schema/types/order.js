@@ -1,4 +1,4 @@
-const { GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLEnumType, GraphQLInt, GraphQLList } = require('graphql');
+const { GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLEnumType, GraphQLInt, GraphQLList, GraphQLFloat } = require('graphql');
 const { GraphQLDateTime } = require('graphql-iso-date');
 
 const OrderTypeEnum = new GraphQLEnumType({
@@ -42,13 +42,13 @@ const OrderType = new GraphQLObjectType({
               name: { type: new GraphQLNonNull(GraphQLString) },
               amount: { type: new GraphQLNonNull(GraphQLInt) },
               variant: { type: new GraphQLNonNull(GraphQLString) },
-              price: { type: new GraphQLNonNull(GraphQLInt) },
+              price: { type: new GraphQLNonNull(GraphQLFloat) },
             },
           })
         )
       ),
     },
-    total: { type: new GraphQLNonNull(GraphQLInt) },
+    total: { type: new GraphQLNonNull(GraphQLFloat) },
     updatedAt: { type: new GraphQLNonNull(GraphQLDateTime) },
     createdAt: { type: new GraphQLNonNull(GraphQLDateTime) },
   },

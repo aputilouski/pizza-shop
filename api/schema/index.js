@@ -1,11 +1,14 @@
 const { GraphQLSchema, GraphQLObjectType, GraphQLString, GraphQLNonNull, GraphQLID, GraphQLInputObjectType, GraphQLInt, GraphQLList, GraphQLFloat } = require('graphql');
 const { Product, Order } = require('@models');
 const OffsetPaginationType = require('./types/offset-pagination');
+const CursorPaginationType = require('./types/cursor-pagination');
 const { ProductType, ProductTypeEnum } = require('./types/product');
 const { OrderType } = require('./types/order');
 const GraphQLUpload = require('graphql-upload/GraphQLUpload.js');
 const { upload } = require('@utils/upload');
 const { isAdmin } = require('@utils/user');
+const { decodeCursor, encodeCursor, useCursor } = require('@utils/cursor');
+const mongoose = require('mongoose');
 
 const Query = new GraphQLObjectType({
   name: 'query',
@@ -33,6 +36,31 @@ const Query = new GraphQLObjectType({
     allProducts: {
       type: new GraphQLList(ProductType),
       resolve: () => Product.find().sort('-createdAt'),
+    },
+    orders: {
+      type: CursorPaginationType('orders', OrderType),
+      args: {
+        first: { type: GraphQLInt, defaultValue: 10 },
+        after: { type: GraphQLString },
+      },
+      resolve: async (_, { first, after }, context) => {
+        if (!isAdmin(context.user)) throw new Error('Forbidden');
+        const filter = {};
+        if (after) filter._id = { $lt: mongoose.Types.ObjectId(decodeCursor(after)) };
+        const query = Order.find(filter).sort('-createdAt');
+        const totalCount = await Order.find().count();
+        const totalCountAfterCursor = await query.clone().count();
+        const orders = await query.limit(first);
+        const edges = orders.map(o => ({ node: o, cursor: encodeCursor(o.id) }));
+        const [startCursor, endCursor] = useCursor(edges);
+        const hasNextPage = totalCountAfterCursor - first > 0;
+        const hasPreviousPage = totalCount - totalCountAfterCursor > first;
+        return {
+          totalCount,
+          edges,
+          pageInfo: { startCursor, endCursor, hasPreviousPage, hasNextPage },
+        };
+      },
     },
   },
 });

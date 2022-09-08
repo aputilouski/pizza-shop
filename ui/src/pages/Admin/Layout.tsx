@@ -1,5 +1,5 @@
 import { AppShell, Navbar, UnstyledButton, Group, ThemeIcon, Text, Avatar, Button } from '@mantine/core';
-import { IconPizza, IconList, IconUsers, IconChartLine } from '@tabler/icons';
+import { IconPizza, IconList, IconChartLine } from '@tabler/icons';
 import { Link, useRouteMatch } from 'react-router-dom';
 import { signOut } from 'redux-manager';
 import clsx from 'clsx';
@@ -50,7 +50,6 @@ const Layout = ({ children }: { children: JSX.Element }) => {
               <MainLink label="Main" icon={<IconChartLine />} to="/admin/main" active={url === '/admin/main'} />
               <MainLink label="Producs" icon={<IconPizza />} to="/admin/products" active={url === '/admin/products'} />
               <MainLink label="Orders" icon={<IconList />} to="/admin/orders" active={url === '/admin/orders'} />
-              <MainLink label="Team" icon={<IconUsers />} to="/admin/team" active={url === '/admin/team'} />
             </div>
           </Navbar.Section>
           <Navbar.Section>
