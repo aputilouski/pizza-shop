@@ -248,7 +248,10 @@ const Subscription = new GraphQLObjectType({
           },
         })
       ),
-      subscribe: () => pubsub.asyncIterator('order'),
+      subscribe: (_, args, context) => {
+        if (!isAdmin(context.user)) throw new Error('Forbidden');
+        return pubsub.asyncIterator('order');
+      },
       resolve: order => ({
         node: order,
         cursor: encodeCursor(order.id),

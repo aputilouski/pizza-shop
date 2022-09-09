@@ -29,6 +29,10 @@ module.exports.generateAccessToken = payload => {
   return `Bearer ${token}`;
 };
 
+module.exports.verifyAccessToken = token => jwt.verify(token.split(' ')[1], env.jwt_secret);
+
+module.exports.findUserByAccessToken = jwt_payload => User.findById(jwt_payload.id).select('-tokens');
+
 module.exports.generateRefreshToken = payload =>
   jwt.sign(payload, env.refresh_token_secret, {
     expiresIn: eval(env.refresh_token_expiry),

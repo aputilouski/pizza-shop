@@ -4,7 +4,7 @@ import { PRICE_LABEL } from 'utils';
 const OrderCard = ({ order }: { order: Order }) => (
   <Card shadow="sm" radius="sm" withBorder>
     <p className="border-0 border-b border-solid mb-3 pb-0.5">
-      #{order.number} ({order.status})
+      <b>#{order.number}</b> ({order.status})
     </p>
 
     <div className="flex gap-3">

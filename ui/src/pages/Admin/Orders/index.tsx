@@ -4,6 +4,7 @@ import { GET_ORDERS, ORDER_SUBSCRIPTION } from 'gql';
 import { Overlay, Button } from '@mantine/core';
 import { ErrorAlert } from 'components';
 import OrderCard from './OrderCard';
+import { notify } from 'utils';
 
 const OrderManagement = () => {
   const { loading, error, data, fetchMore, subscribeToMore } = useQuery<{ orders: CursorPagination<Order> }>(GET_ORDERS, {
@@ -25,6 +26,7 @@ const OrderManagement = () => {
           },
         };
       },
+      onError: error => notify.error(error.message || 'Oops. Someting went wrong'),
     });
   }, [subscribeToMore]);
 

@@ -6,7 +6,14 @@ import { GraphQLWsLink } from '@apollo/client/link/subscriptions';
 import { getAccessToken } from 'api';
 import { createClient } from 'graphql-ws';
 
-const wsLink = new GraphQLWsLink(createClient({ url: process.env.NODE_ENV === 'development' ? `ws://localhost:${process.env.REACT_APP_API_PORT}/subscriptions` : `ws://${window.location.host}/subscriptions` }));
+const wsLink = new GraphQLWsLink(
+  createClient({
+    url: process.env.NODE_ENV === 'development' ? `ws://localhost:${process.env.REACT_APP_API_PORT}/subscriptions` : `ws://${window.location.host}/subscriptions`,
+    connectionParams: () => ({
+      authorization: getAccessToken(),
+    }),
+  })
+);
 
 const authLink = setContext((_, { headers }) => {
   const token = getAccessToken();

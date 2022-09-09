@@ -53,7 +53,23 @@ module.exports = (port, onError, onListening) => {
   const server = http.createServer(app);
 
   const wsServer = new ws.Server({ server, path: '/subscriptions' });
-  useServer({ schema }, wsServer);
+  useServer(
+    {
+      schema,
+      context: async (ctx, msg, args) => {
+        const context = {};
+        const authHeader = ctx.connectionParams.authorization;
+        if (authHeader) {
+          const payload = strategies.verifyAccessToken(authHeader);
+          const user = await strategies.findUserByAccessToken(payload);
+          if (!user) throw new Error('User not found');
+          context.user = user;
+        }
+        return context;
+      },
+    },
+    wsServer
+  );
 
   server.listen(port);
 
