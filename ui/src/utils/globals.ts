@@ -28,3 +28,15 @@ export const PRICE_LABEL = {
   lg: 'Large',
   default: 'Default',
 };
+
+export const ORDER_STATUS = {
+  KEYS: ['initiated', 'received', 'in_kitchen', 'delivery', 'completed', 'rejected'],
+  LABEL: {
+    initiated: 'Initiated',
+    received: 'Received',
+    in_kitchen: 'In kitchen',
+    delivery: 'Delivery',
+    completed: 'Completed',
+    rejected: 'Rejected',
+  },
+} as const;

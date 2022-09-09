@@ -3,7 +3,7 @@ const { Product, Order } = require('@models');
 const OffsetPaginationType = require('./types/offset-pagination');
 const CursorPaginationType = require('./types/cursor-pagination');
 const { ProductType, ProductTypeEnum } = require('./types/product');
-const { OrderType } = require('./types/order');
+const { OrderType, OrderTypeEnum } = require('./types/order');
 const GraphQLUpload = require('graphql-upload/GraphQLUpload.js');
 const { upload } = require('@utils/upload');
 const { isAdmin } = require('@utils/user');
@@ -139,7 +139,7 @@ const Mutation = new GraphQLObjectType({
         },
       },
       resolve: (_, { input }, context) => {
-        if (isAdmin(context.user)) return Product.findOneAndUpdate({ _id: input.id }, input);
+        if (isAdmin(context.user)) return Product.findOneAndUpdate({ _id: input.id }, input, { new: true });
         else throw new Error('Forbidden');
       },
     },
@@ -232,6 +232,17 @@ const Mutation = new GraphQLObjectType({
         return order;
       },
     },
+    UpdateOrderStatus: {
+      type: new GraphQLNonNull(OrderType),
+      args: {
+        id: { type: new GraphQLNonNull(GraphQLID) },
+        status: { type: new GraphQLNonNull(OrderTypeEnum) },
+      },
+      resolve: (_, { id: _id, status }, context) => {
+        if (!isAdmin(context.user)) throw new Error('Forbidden');
+        return Order.findOneAndUpdate({ _id }, { status }, { new: true });
+      },
+    },
   },
 });
 
@@ -252,10 +263,13 @@ const Subscription = new GraphQLObjectType({
         if (!isAdmin(context.user)) throw new Error('Forbidden');
         return pubsub.asyncIterator('order');
       },
-      resolve: order => ({
-        node: order,
-        cursor: encodeCursor(order.id),
-      }),
+      resolve: (order, args, context) => {
+        if (!isAdmin(context.user)) throw new Error('Forbidden');
+        return {
+          node: order,
+          cursor: encodeCursor(order.id),
+        };
+      },
     },
   },
 });

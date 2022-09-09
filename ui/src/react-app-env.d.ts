@@ -44,6 +44,7 @@ type CartItem = {
 };
 
 type Order = {
+  id: string; // Product id
   number: number;
   status: string;
   address: {

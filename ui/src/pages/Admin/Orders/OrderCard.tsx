@@ -1,11 +1,18 @@
-import { Card } from '@mantine/core';
-import { PRICE_LABEL } from 'utils';
+import { Card, Select } from '@mantine/core';
+import { PRICE_LABEL, ORDER_STATUS } from 'utils';
 
-const OrderCard = ({ order }: { order: Order }) => (
-  <Card shadow="sm" radius="sm" withBorder>
-    <p className="border-0 border-b border-solid mb-3 pb-0.5">
-      <b>#{order.number}</b> ({order.status})
-    </p>
+const OrderCard = ({ order, setStatus }: { order: Order; setStatus: (status: string) => void }) => (
+  <Card shadow="sm" radius="sm" withBorder className="overflow-visible">
+    <div className="border-0 border-b border-solid mb-3.5 pb-2">
+      <b>#{order.number}</b>
+      <Select //
+        className="inline-block ml-2.5"
+        size="xs"
+        value={order.status}
+        data={ORDER_STATUS.KEYS.map(key => ({ value: key, label: ORDER_STATUS.LABEL[key] }))}
+        onChange={status => status && setStatus(status)}
+      />
+    </div>
 
     <div className="flex gap-3">
       <div className="flex-1 flex flex-col">

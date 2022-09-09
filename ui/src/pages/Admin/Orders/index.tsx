@@ -1,6 +1,6 @@
 import React from 'react';
-import { useQuery } from '@apollo/client';
-import { GET_ORDERS, ORDER_SUBSCRIPTION } from 'gql';
+import { useQuery, useMutation, gql } from '@apollo/client';
+import { GET_ORDERS, ORDER_SUBSCRIPTION, UPDATE_ORDER_STATUS } from 'gql';
 import { Overlay, Button } from '@mantine/core';
 import { ErrorAlert } from 'components';
 import OrderCard from './OrderCard';
@@ -11,6 +11,8 @@ const OrderManagement = () => {
     variables: { first: 6 },
     notifyOnNetworkStatusChange: true,
   });
+
+  const [updateStatus] = useMutation<{ UpdateOrderStatus: { id: string; status: string } }>(UPDATE_ORDER_STATUS);
 
   React.useEffect(() => {
     subscribeToMore<{ OrderCreatedEdge: { node: Order; cursor: string } }>({
@@ -26,7 +28,7 @@ const OrderManagement = () => {
           },
         };
       },
-      onError: error => notify.error(error.message || 'Oops. Someting went wrong'),
+      onError: error => notify.error(error.message),
     });
   }, [subscribeToMore]);
 
@@ -37,7 +39,30 @@ const OrderManagement = () => {
       {error && <ErrorAlert message={error.message} />}
       <div className="flex flex-col gap-2">
         {data?.orders.edges.map(edge => (
-          <OrderCard key={edge.cursor} order={edge.node} />
+          <OrderCard //
+            key={edge.cursor}
+            order={edge.node}
+            setStatus={status =>
+              updateStatus({
+                variables: { id: edge.node.id, status },
+                onCompleted: () => notify.success('Status has been successfully changed'),
+                onError: e => notify.error(e.message),
+                update: (cache, { data }) => {
+                  if (!data) return;
+                  const { id, status } = data.UpdateOrderStatus;
+                  cache.writeFragment({
+                    id: `Order:${id}`,
+                    fragment: gql`
+                      fragment MyOrder on Order {
+                        status
+                      }
+                    `,
+                    data: { status },
+                  });
+                },
+              })
+            }
+          />
         ))}
       </div>
 

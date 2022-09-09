@@ -54,4 +54,4 @@ const OrderType = new GraphQLObjectType({
   },
 });
 
-module.exports = { OrderType, Address };
+module.exports = { OrderType, OrderTypeEnum, Address };

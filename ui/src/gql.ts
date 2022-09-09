@@ -134,3 +134,12 @@ export const ORDER_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const UPDATE_ORDER_STATUS = gql`
+  mutation UpdateOrderStatus($id: ID!, $status: OrderStatus!) {
+    UpdateOrderStatus(id: $id, status: $status) {
+      id
+      status
+    }
+  }
+`;
