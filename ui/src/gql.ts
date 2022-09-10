@@ -153,3 +153,12 @@ export const ORDER_STATUS_SUBSCRIPTION = gql`
     }
   }
 `;
+
+export const GET_USER_ORDERS = gql`
+  ${ORDER_FRAGMENT}
+  query GetUserOrders($id: [ID]!) {
+    getUserOrders(id: $id) {
+      ...OrderFields
+    }
+  }
+`;

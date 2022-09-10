@@ -3,8 +3,8 @@ import { ActionIcon, Modal, Transition, Card } from '@mantine/core';
 import { IconTruckDelivery } from '@tabler/icons';
 import { useCart } from './CartProvider';
 import { notify, ORDER_STATUS, PRICE_LABEL } from 'utils';
-import { useSubscription } from '@apollo/client';
-import { ORDER_STATUS_SUBSCRIPTION } from 'gql';
+import { useSubscription, useLazyQuery } from '@apollo/client';
+import { ORDER_STATUS_SUBSCRIPTION, GET_USER_ORDERS } from 'gql';
 
 const OrderCard = ({ order }: { order: Order }) => (
   <Card shadow="sm" radius="sm" withBorder className="overflow-visible">
@@ -35,7 +35,24 @@ const OrderCard = ({ order }: { order: Order }) => (
 const OrderStatusModal = () => {
   const [open, setOpen] = React.useState(false);
 
-  const { orders, updateOrderStatus } = useCart();
+  const { orders, updateOrderStatus, pushOrders } = useCart();
+
+  const [getUserOrders] = useLazyQuery<{ getUserOrders: Order[] }>(GET_USER_ORDERS, {
+    onCompleted: data => pushOrders(data.getUserOrders),
+  });
+
+  React.useEffect(() => {
+    const str = localStorage.getItem('orders');
+    if (!str) return;
+    const idArray: string[] = JSON.parse(str);
+    if (idArray.length === 0) return;
+    getUserOrders({ variables: { id: idArray } });
+  }, [getUserOrders]);
+
+  React.useEffect(() => {
+    const array = orders.map(o => o.id);
+    localStorage.setItem('orders', JSON.stringify(array));
+  }, [orders]);
 
   const { error } = useSubscription<{ OrderStatusChanged: { id: string; status: string } }>(ORDER_STATUS_SUBSCRIPTION, {
     variables: { id: orders.map(o => o.id) },

@@ -13,6 +13,7 @@ type CartContextType = {
   clear: () => void;
   orders: Order[];
   pushOrder: (order: Order) => void;
+  pushOrders: (orders: Order[]) => void;
   updateOrderStatus: (id: string, status: string) => void;
 };
 
@@ -25,6 +26,7 @@ const CartContext = React.createContext<CartContextType>({
   clear: () => {},
   orders: [],
   pushOrder: () => {},
+  pushOrders: () => {},
   updateOrderStatus: () => {},
 });
 
@@ -63,10 +65,12 @@ export const ProvideCart = ({ children }: { children: React.ReactNode }) => {
     clear: () => cartItems([]),
     orders,
     pushOrder: order => userOrders([order, ...orders]),
+    pushOrders: array => userOrders([...array, ...orders]),
     updateOrderStatus: (id, status) => {
-      const order = orders.find(o => o.id === id);
-      if (!order) return;
-      order.status = status;
+      const orderIndex = orders.findIndex(o => o.id === id);
+      if (orderIndex < 0) return;
+      const order = orders[orderIndex];
+      orders[orderIndex] = { ...order, status };
       userOrders([...orders]);
     },
   };

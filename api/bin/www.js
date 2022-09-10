@@ -10,11 +10,11 @@ const debug = require('debug')('api:server');
 debug('NODE_ENV:', process.env.NODE_ENV);
 debug('ENV FILE:', path);
 
-const start = require('../start');
+const app = require('../index');
 
 const port = normalizePort(process.env.API_PORT || '9000');
 
-start(port, onError, onListening);
+app(port, onError, onListening);
 
 /**
  * Normalize a port into a number, string, or false.

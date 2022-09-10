@@ -65,6 +65,11 @@ const Query = new GraphQLObjectType({
         };
       },
     },
+    getUserOrders: {
+      type: new GraphQLNonNull(new GraphQLList(OrderType)),
+      args: { id: { type: new GraphQLNonNull(new GraphQLList(GraphQLID)) } },
+      resolve: (_, { id }) => Order.find({ _id: { $in: id }, status: { $nin: ['completed', 'rejected'] } }).sort('-createdAt'),
+    },
   },
 });
 
