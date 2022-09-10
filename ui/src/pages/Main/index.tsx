@@ -5,6 +5,7 @@ import { Alert, Overlay } from '@mantine/core';
 import { ProvidePreview } from './PreviewProvider';
 import { ProvideCart } from './CartProvider';
 import { GET_All_PRODUCTS } from 'gql';
+import OrderStatusModal from './OrderStatusModal';
 
 const MainPage = () => {
   const { loading, error, data } = useQuery<{ allProducts: Product[] }>(GET_All_PRODUCTS);
@@ -20,15 +21,15 @@ const MainPage = () => {
       <ProvidePreview>
         <ProvideCart>
           {data &&
-            PRODUCT.TYPE.map(type => {
-              return (
-                <ProductSection //
-                  key={type}
-                  title={PRODUCT.LABEL[type]}
-                  items={data?.allProducts.filter(p => p.type === type)}
-                />
-              );
-            })}
+            PRODUCT.TYPE.map(type => (
+              <ProductSection //
+                key={type}
+                title={PRODUCT.LABEL[type]}
+                items={data?.allProducts.filter(p => p.type === type)}
+              />
+            ))}
+
+          <OrderStatusModal />
         </ProvideCart>
       </ProvidePreview>
     </div>

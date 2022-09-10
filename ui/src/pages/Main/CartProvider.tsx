@@ -2,6 +2,7 @@ import React from 'react';
 import { makeVar, useReactiveVar } from '@apollo/client';
 
 export const cartItems = makeVar<CartItem[]>([]);
+export const userOrders = makeVar<Order[]>([]);
 
 type CartContextType = {
   items: CartItem[];
@@ -10,6 +11,9 @@ type CartContextType = {
   decrease: (item: Omit<CartItem, 'amount'>) => void;
   remove: (item: CartItem) => void;
   clear: () => void;
+  orders: Order[];
+  pushOrder: (order: Order) => void;
+  updateOrderStatus: (id: string, status: string) => void;
 };
 
 const CartContext = React.createContext<CartContextType>({
@@ -19,10 +23,14 @@ const CartContext = React.createContext<CartContextType>({
   decrease: () => {},
   remove: () => {},
   clear: () => {},
+  orders: [],
+  pushOrder: () => {},
+  updateOrderStatus: () => {},
 });
 
 export const ProvideCart = ({ children }: { children: React.ReactNode }) => {
   const items = useReactiveVar(cartItems);
+  const orders = useReactiveVar(userOrders);
 
   const context: CartContextType = {
     items,
@@ -53,6 +61,14 @@ export const ProvideCart = ({ children }: { children: React.ReactNode }) => {
       cartItems([...items]);
     },
     clear: () => cartItems([]),
+    orders,
+    pushOrder: order => userOrders([order, ...orders]),
+    updateOrderStatus: (id, status) => {
+      const order = orders.find(o => o.id === id);
+      if (!order) return;
+      order.status = status;
+      userOrders([...orders]);
+    },
   };
   return <CartContext.Provider value={context}>{children}</CartContext.Provider>;
 };

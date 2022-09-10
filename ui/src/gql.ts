@@ -70,14 +70,6 @@ export const UPDATE_PRODUCT = gql`
   }
 `;
 
-export const CREATE_ORDER = gql`
-  mutation CreateOrder($input: CreateOrderData!) {
-    CreateOrder(input: $input) {
-      id
-    }
-  }
-`;
-
 const ORDER_FRAGMENT = gql`
   fragment OrderFields on Order {
     id
@@ -99,6 +91,15 @@ const ORDER_FRAGMENT = gql`
       price
     }
     total
+  }
+`;
+
+export const CREATE_ORDER = gql`
+  ${ORDER_FRAGMENT}
+  mutation CreateOrder($input: CreateOrderData!) {
+    CreateOrder(input: $input) {
+      ...OrderFields
+    }
   }
 `;
 
@@ -138,6 +139,15 @@ export const ORDER_SUBSCRIPTION = gql`
 export const UPDATE_ORDER_STATUS = gql`
   mutation UpdateOrderStatus($id: ID!, $status: OrderStatus!) {
     UpdateOrderStatus(id: $id, status: $status) {
+      id
+      status
+    }
+  }
+`;
+
+export const ORDER_STATUS_SUBSCRIPTION = gql`
+  subscription OnOrderStatusChanged($id: [ID]!) {
+    OrderStatusChanged(id: $id) {
       id
       status
     }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { Indicator, ActionIcon, Modal, Alert, CloseButton, Card, Button, TextInput, Textarea, LoadingOverlay } from '@mantine/core';
+import { Indicator, ActionIcon, Modal, Alert, CloseButton, Card, Button, TextInput, Textarea, LoadingOverlay, Notification } from '@mantine/core';
 import { IconShoppingCart } from '@tabler/icons';
 import { useCart } from './CartProvider';
 import { GET_All_PRODUCTS, CREATE_ORDER } from 'gql';
@@ -7,7 +7,7 @@ import { useQuery, useMutation } from '@apollo/client';
 import { CartButton } from 'components';
 import { useForm, yupResolver } from '@mantine/form';
 import * as Yup from 'yup';
-import { notify } from 'utils';
+import { IconCheck } from '@tabler/icons';
 
 type CartItemCardProps = {
   product: Product;
@@ -72,9 +72,9 @@ const CartModal = () => {
     }
   }, [open, clearErrors]);
 
-  const { items, increase, decrease, remove, clear } = useCart();
+  const { items, increase, decrease, remove, clear, pushOrder } = useCart();
 
-  const [send, { loading, error }] = useMutation(CREATE_ORDER);
+  const [send, { loading, error }] = useMutation<{ CreateOrder: Order }>(CREATE_ORDER);
 
   const { data } = useQuery<{ allProducts: Product[] }>(GET_All_PRODUCTS);
 
@@ -97,10 +97,10 @@ const CartModal = () => {
     send({
       variables: { input: { address, items } },
       onCompleted: data => {
-        setOpen(false);
+        pushOrder(data.CreateOrder);
         clear();
         resetForm();
-        notify.success('Your order has been sent. The operator will call you back');
+        setStep(3);
       },
     })
   );
@@ -155,9 +155,10 @@ const CartModal = () => {
             )}
           </div>
         )}
+
         {step === 2 && (
           <form className="flex flex-col gap-2" onSubmit={onSubmit}>
-            <TextInput name="city" placeholder="City" {...form.getInputProps('city')} />
+            <TextInput name="city" placeholder="City" {...form.getInputProps('city')} autoFocus />
             <TextInput name="addr" placeholder="Street, house" {...form.getInputProps('addr')} />
             <div className="flex gap-2">
               <TextInput name="entrance" placeholder="Entrance" {...form.getInputProps('entrance')} />
@@ -178,6 +179,15 @@ const CartModal = () => {
               </Button>
             </div>
           </form>
+        )}
+
+        {step === 3 && (
+          <Notification //
+            icon={<IconCheck />}
+            title="Order Successfully Placed"
+            disallowClose>
+            Your order has been sent. The operator will call you back
+          </Notification>
         )}
       </Modal>
     </>

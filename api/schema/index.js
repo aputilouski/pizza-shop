@@ -10,7 +10,7 @@ const { isAdmin } = require('@utils/user');
 const { decodeCursor, encodeCursor, useCursor } = require('@utils/cursor');
 const mongoose = require('mongoose');
 
-const { PubSub } = require('graphql-subscriptions');
+const { PubSub, withFilter } = require('graphql-subscriptions');
 const pubsub = new PubSub();
 
 const Query = new GraphQLObjectType({
@@ -238,9 +238,11 @@ const Mutation = new GraphQLObjectType({
         id: { type: new GraphQLNonNull(GraphQLID) },
         status: { type: new GraphQLNonNull(OrderTypeEnum) },
       },
-      resolve: (_, { id: _id, status }, context) => {
+      resolve: async (_, { id: _id, status }, context) => {
         if (!isAdmin(context.user)) throw new Error('Forbidden');
-        return Order.findOneAndUpdate({ _id }, { status }, { new: true });
+        const order = await Order.findOneAndUpdate({ _id }, { status }, { new: true });
+        pubsub.publish('order-status', order);
+        return order;
       },
     },
   },
@@ -270,6 +272,23 @@ const Subscription = new GraphQLObjectType({
           cursor: encodeCursor(order.id),
         };
       },
+    },
+    OrderStatusChanged: {
+      type: new GraphQLNonNull(
+        new GraphQLObjectType({
+          name: 'OrderStatusChanged',
+          fields: {
+            id: { type: new GraphQLNonNull(GraphQLID) },
+            status: { type: new GraphQLNonNull(OrderTypeEnum) },
+          },
+        })
+      ),
+      args: { id: { type: new GraphQLNonNull(new GraphQLList(GraphQLID)) } },
+      subscribe: withFilter(
+        () => pubsub.asyncIterator('order-status'),
+        (payload, args) => args.id.includes(payload.id)
+      ),
+      resolve: body => body,
     },
   },
 });
