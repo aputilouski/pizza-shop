@@ -45,13 +45,14 @@ const Query = new GraphQLObjectType({
       args: {
         first: { type: GraphQLInt, defaultValue: 10 },
         after: { type: GraphQLString },
+        status: { type: new GraphQLNonNull(OrderTypeEnum) },
       },
-      resolve: async (_, { first, after }, context) => {
+      resolve: async (_, { first, after, status }, context) => {
         if (!isAdmin(context.user)) throw new Error('Forbidden');
-        const filter = {};
+        const filter = { status };
         if (after) filter._id = { $lt: mongoose.Types.ObjectId(decodeCursor(after)) };
-        const query = Order.find(filter).sort('-createdAt');
-        const totalCount = await Order.find().count();
+        const query = Order.find(filter).sort('-updatedAt');
+        const totalCount = await Order.find({ status }).count();
         const totalCountAfterCursor = await query.clone().count();
         const orders = await query.limit(first);
         const edges = orders.map(o => ({ node: o, cursor: encodeCursor(o.id) }));

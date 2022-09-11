@@ -5,11 +5,15 @@ import { useCart } from './CartProvider';
 import { notify, ORDER_STATUS, PRICE_LABEL } from 'utils';
 import { useSubscription, useLazyQuery } from '@apollo/client';
 import { ORDER_STATUS_SUBSCRIPTION, GET_USER_ORDERS } from 'gql';
+import moment from 'moment';
 
 const OrderCard = ({ order }: { order: Order }) => (
   <Card shadow="sm" radius="sm" withBorder className="overflow-visible">
-    <div className="border-0 border-b border-solid mb-3.5 pb-2">
-      <b>#{order.number}</b> {ORDER_STATUS.LABEL[order.status as keyof typeof ORDER_STATUS.LABEL]}
+    <div className="border-0 border-b border-solid mb-3.5 pb-2 flex justify-between items-center">
+      <div>
+        <b>#{order.number}</b> <span className="text-sm">{ORDER_STATUS.LABEL[order.status as keyof typeof ORDER_STATUS.LABEL]}</span>
+      </div>
+      <p className="text-sm">{moment(order.createdAt).format('DD/MM/YYYY hh:mm')}</p>
     </div>
 
     <div className="flex gap-3">

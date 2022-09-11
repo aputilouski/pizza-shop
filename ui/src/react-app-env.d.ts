@@ -63,14 +63,17 @@ type Order = {
     price: string;
   }[];
   total: string;
+  createdAt: string;
+};
+
+type Edge<T> = {
+  node: T;
+  cursor: string;
 };
 
 type CursorPagination<T> = {
   totalCount: number;
-  edges: {
-    node: T;
-    cursor: string;
-  }[];
+  edges: Edge<T>[];
   pageInfo: {
     startCursor: string | null;
     endCursor: string | null;

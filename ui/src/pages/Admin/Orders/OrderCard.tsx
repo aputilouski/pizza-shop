@@ -1,17 +1,21 @@
 import { Card, Select } from '@mantine/core';
 import { PRICE_LABEL, ORDER_STATUS } from 'utils';
+import moment from 'moment';
 
 const OrderCard = ({ order, setStatus }: { order: Order; setStatus: (status: string) => void }) => (
   <Card shadow="sm" radius="sm" withBorder className="overflow-visible">
-    <div className="border-0 border-b border-solid mb-3.5 pb-2">
-      <b>#{order.number}</b>
-      <Select //
-        className="inline-block ml-2.5"
-        size="xs"
-        value={order.status}
-        data={ORDER_STATUS.KEYS.map(key => ({ value: key, label: ORDER_STATUS.LABEL[key] }))}
-        onChange={status => status && setStatus(status)}
-      />
+    <div className="border-0 border-b border-solid mb-3.5 pb-2 flex justify-between items-center">
+      <div>
+        <b>#{order.number}</b>
+        <Select //
+          className="inline-block ml-2.5"
+          size="xs"
+          value={order.status}
+          data={ORDER_STATUS.KEYS.map(key => ({ value: key, label: ORDER_STATUS.LABEL[key] }))}
+          onChange={status => status && setStatus(status)}
+        />
+      </div>
+      <p>{moment(order.createdAt).format('DD/MM/YYYY hh:mm')}</p>
     </div>
 
     <div className="flex gap-3">

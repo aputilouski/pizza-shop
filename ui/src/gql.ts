@@ -70,7 +70,7 @@ export const UPDATE_PRODUCT = gql`
   }
 `;
 
-const ORDER_FRAGMENT = gql`
+export const ORDER_FRAGMENT = gql`
   fragment OrderFields on Order {
     id
     number
@@ -91,6 +91,7 @@ const ORDER_FRAGMENT = gql`
       price
     }
     total
+    createdAt
   }
 `;
 
@@ -105,8 +106,8 @@ export const CREATE_ORDER = gql`
 
 export const GET_ORDERS = gql`
   ${ORDER_FRAGMENT}
-  query GetOrders($first: Int, $after: String) {
-    orders(first: $first, after: $after) {
+  query GetOrders($first: Int, $after: String, $status: OrderStatus!) {
+    orders(first: $first, after: $after, status: $status) {
       totalCount
       edges {
         node {

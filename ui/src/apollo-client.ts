@@ -10,7 +10,7 @@ const wsLink = new GraphQLWsLink(
   createClient({
     url: process.env.NODE_ENV === 'development' ? `ws://localhost:${process.env.REACT_APP_API_PORT}/subscriptions` : `ws://${window.location.host}/subscriptions`,
     connectionParams: () => ({
-      authorization: getAccessToken(),
+      authorization: getAccessToken,
     }),
   })
 );
@@ -34,7 +34,7 @@ const client = new ApolloClient({
     typePolicies: {
       Query: {
         fields: {
-          orders: relayStylePagination(),
+          orders: relayStylePagination(['status']),
         },
       },
     },

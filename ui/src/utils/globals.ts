@@ -30,6 +30,7 @@ export const PRICE_LABEL = {
 };
 
 export const ORDER_STATUS = {
+  INITIATED: 'initiated',
   KEYS: ['initiated', 'received', 'in_kitchen', 'delivery', 'completed', 'rejected'],
   LABEL: {
     initiated: 'Initiated',
