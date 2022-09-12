@@ -3,6 +3,7 @@ export { default as CartButton } from './elements/CartButton';
 
 export { default as AuthController } from './hoc/AuthController';
 export { default as AutoSignInIndicator } from './hoc/AutoSignInIndicator';
+export { default as SubscriptionManager } from './hoc/SubscriptionManager';
 
 export { default as Layout } from './layout';
 

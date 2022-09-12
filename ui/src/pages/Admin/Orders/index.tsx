@@ -1,6 +1,6 @@
 import React from 'react';
-import { useQuery, useMutation, useSubscription, ApolloError, ApolloCache, MutationUpdaterFunction, OperationVariables, DefaultContext } from '@apollo/client';
-import { GET_ORDERS, ORDER_SUBSCRIPTION, UPDATE_ORDER_STATUS } from 'gql';
+import { useQuery, useMutation, ApolloError, ApolloCache, MutationUpdaterFunction, OperationVariables, DefaultContext } from '@apollo/client';
+import { GET_ORDERS, UPDATE_ORDER_STATUS } from 'gql';
 import { Overlay, Button } from '@mantine/core';
 import { ErrorAlert } from 'components';
 import OrderCard from './OrderCard';
@@ -18,30 +18,6 @@ const OrderManagement = () => {
   });
 
   const [updateStatus] = useMutation<{ UpdateOrderStatus: { id: string; status: string } }>(UPDATE_ORDER_STATUS);
-
-  useSubscription<{ OrderCreatedEdge: { node: Order; cursor: string } }>(ORDER_SUBSCRIPTION, {
-    onSubscriptionData: ({ client, subscriptionData }) => {
-      if (!subscriptionData.data) return;
-      const { node, cursor } = subscriptionData.data.OrderCreatedEdge;
-      notify.success(`New order #${node.number} received`);
-      const cursorPagination: { orders: CursorPagination<Order> } | null = client.cache.readQuery({ query: GET_ORDERS, variables: { status: ORDER_STATUS.INITIATED } });
-      if (!cursorPagination) {
-        client.refetchQueries({ include: [GET_ORDERS] });
-        return notify.error('Oops. Something went wrong');
-      }
-      client.cache.writeQuery({
-        query: GET_ORDERS,
-        variables: { status: ORDER_STATUS.INITIATED },
-        data: {
-          orders: {
-            totalCount: cursorPagination.orders.totalCount + 1,
-            edges: [{ node, cursor }, ...cursorPagination.orders.edges],
-            pageInfo: { ...cursorPagination.orders.pageInfo, startCursor: cursor },
-          },
-        },
-      });
-    },
-  });
 
   // React.useEffect(() => {
   //   subscribeToMore<{ OrderCreatedEdge: { node: Order; cursor: string } }>({
