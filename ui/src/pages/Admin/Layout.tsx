@@ -47,7 +47,7 @@ const Layout = ({ children }: { children: JSX.Element }) => {
           </Navbar.Section>
           <Navbar.Section grow mt="md">
             <div className="flex flex-col gap-2">
-              <MainLink label="Main" icon={<IconChartLine />} to="/admin/main" active={url === '/admin/main'} />
+              <MainLink label="Statistics" icon={<IconChartLine />} to="/admin/stats" active={url === '/admin/stats'} />
               <MainLink label="Producs" icon={<IconPizza />} to="/admin/products" active={url === '/admin/products'} />
               <MainLink label="Orders" icon={<IconList />} to="/admin/orders" active={url === '/admin/orders'} />
             </div>

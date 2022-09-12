@@ -74,7 +74,7 @@ function* signInWorker(action: Action<SignInCredentials>, bc: BroadcastChannel) 
     yield put(authSlice.actions.signIn(response.data));
     yield call([localStorage, localStorage.setItem], 'authorized', '1');
     yield call([bc, bc.postMessage], { type: SIGN_IN, payload: response.data });
-    yield put(replace('/admin/main'));
+    yield put(replace('/admin/stats'));
   } catch (error) {
     yield put(authSlice.actions.setErrorMessage({ [SIGN_IN]: getErrorMessage(error) }));
     throw error;
@@ -98,7 +98,7 @@ function* autoSignInWorker() {
       yield put(authSlice.actions.signIn({ user: response.data.user }));
     }
     const pathname: string = yield select((state: RootState) => state.router.location.pathname);
-    if (pathname === '/admin') yield put(replace('/admin/main'));
+    if (pathname === '/admin') yield put(replace('/admin/stats'));
   } catch (error) {
     console.error(error);
     yield put(authSlice.actions.setPendingAuth(false));

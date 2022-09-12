@@ -9,6 +9,7 @@ const { upload } = require('@utils/upload');
 const { isAdmin } = require('@utils/user');
 const { decodeCursor, encodeCursor, useCursor } = require('@utils/cursor');
 const mongoose = require('mongoose');
+const { GraphQLDateTime } = require('graphql-iso-date');
 
 const { PubSub, withFilter } = require('graphql-subscriptions');
 const pubsub = new PubSub();
@@ -70,6 +71,35 @@ const Query = new GraphQLObjectType({
       type: new GraphQLNonNull(new GraphQLList(OrderType)),
       args: { id: { type: new GraphQLNonNull(new GraphQLList(GraphQLID)) } },
       resolve: (_, { id }) => Order.find({ _id: { $in: id }, status: { $nin: ['completed', 'rejected'] } }).sort('-createdAt'),
+    },
+    stats: {
+      type: new GraphQLNonNull(
+        new GraphQLObjectType({
+          name: 'Stats',
+          fields: {
+            initiatedOrders: { type: new GraphQLNonNull(GraphQLInt) },
+            receivedOrders: { type: new GraphQLNonNull(GraphQLInt) },
+            inKitchenOrders: { type: new GraphQLNonNull(GraphQLInt) },
+            inDeliveryOrders: { type: new GraphQLNonNull(GraphQLInt) },
+            completedOrders: { type: new GraphQLNonNull(GraphQLInt) },
+          },
+        })
+      ),
+      args: { start: { type: GraphQLDateTime } },
+      resolve: async (_, { start }, context) => {
+        if (!isAdmin(context.user)) throw new Error('Forbidden');
+        const result = await Order.aggregate([
+          { $match: start ? { updatedAt: { $gte: start } } : {} }, //
+          { $group: { _id: '$status', count: { $count: {} } } },
+        ]);
+        return {
+          initiatedOrders: result.find(item => item._id === 'initiated')?.count || 0,
+          receivedOrders: result.find(item => item._id === 'received')?.count || 0,
+          inKitchenOrders: result.find(item => item._id === 'in-kitchen')?.count || 0,
+          inDeliveryOrders: result.find(item => item._id === 'delivery')?.count || 0,
+          completedOrders: result.find(item => item._id === 'completed')?.count || 0,
+        };
+      },
     },
   },
 });

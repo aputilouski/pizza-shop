@@ -86,3 +86,5 @@ type OffsetPagination<T> = {
   count: number;
   rows: T[];
 };
+
+declare module 'animated-number-react';
