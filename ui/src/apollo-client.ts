@@ -8,7 +8,7 @@ import { createClient } from 'graphql-ws';
 
 const wsLink = new GraphQLWsLink(
   createClient({
-    url: process.env.NODE_ENV === 'development' ? `${window.location.protocol === 'https:' ? 'wss' : 'ws'}://localhost:${process.env.REACT_APP_API_PORT}/subscriptions` : `ws://${window.location.host}/subscriptions`,
+    url: process.env.NODE_ENV === (window.location.protocol === 'https:' ? 'wss' : 'ws') + 'development' ? `://localhost:${process.env.REACT_APP_API_PORT}/subscriptions` : `://${window.location.host}/subscriptions`,
     connectionParams: () => ({
       authorization: getAccessToken(),
     }),
