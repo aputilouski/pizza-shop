@@ -64,7 +64,7 @@ const Page = () => {
 
   return (
     <>
-      <div className="mb-3 font-semibold text-2xl flex items-center gap-2.5">
+      <div className="mb-5 font-semibold text-2xl flex items-center gap-4">
         <p>Statistics:</p>
         <Select //
           data={options}
@@ -75,7 +75,7 @@ const Page = () => {
 
       <hr />
 
-      <div className="relative mt-20">
+      <div className="relative mt-16">
         <LoadingOverlay visible={loading} overlayBlur={2} />
         <div className="flex">
           <StatsCard title="Initiated Orders" value={data?.stats.initiatedOrders || 0} />

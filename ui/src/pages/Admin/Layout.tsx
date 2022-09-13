@@ -1,7 +1,7 @@
 import { AppShell, Navbar, UnstyledButton, Group, ThemeIcon, Text, Avatar, Button } from '@mantine/core';
 import { IconPizza, IconList, IconChartLine } from '@tabler/icons';
 import { Link, useRouteMatch } from 'react-router-dom';
-import { signOut } from 'redux-manager';
+import { signOut, useStore } from 'redux-manager';
 import clsx from 'clsx';
 
 type MainLinkProps = {
@@ -12,29 +12,37 @@ type MainLinkProps = {
 };
 
 const MainLink = ({ label, icon, to, active = false }: MainLinkProps) => (
-  <UnstyledButton component={Link} to={to} className={clsx('inline-block', active && 'bg-gray-200')}>
+  <UnstyledButton component={Link} to={to} className={clsx('inline-block rounded transition linear delay-150', active && 'bg-sky-100')}>
     <Group>
-      <ThemeIcon variant="light">{icon}</ThemeIcon>
+      <ThemeIcon variant="light" size={40}>
+        {icon}
+      </ThemeIcon>
       <Text size="sm">{label}</Text>
     </Group>
   </UnstyledButton>
 );
 
-const ProfileButton = ({ to }: { to: string }) => (
-  <UnstyledButton component={Link} to={to}>
-    <Group>
-      <Avatar size={40} color="blue">
-        BH
-      </Avatar>
-      <div>
-        <Text>Bob Handsome</Text>
-        <Text size="xs" color="dimmed">
-          bob@handsome.inc
-        </Text>
-      </div>
-    </Group>
-  </UnstyledButton>
-);
+const ProfileButton = ({ to }: { to: string }) => {
+  const user = useStore(s => s.auth.user);
+  return (
+    <UnstyledButton component={Link} to={to}>
+      <Group>
+        <Avatar size={40} color="blue">
+          {user?.name
+            .split(' ')
+            .map(str => str[0])
+            .join('')}
+        </Avatar>
+        <div>
+          <Text>{user?.name}</Text>
+          <Text size="xs" color="dimmed">
+            {user?.username}
+          </Text>
+        </div>
+      </Group>
+    </UnstyledButton>
+  );
+};
 
 const Layout = ({ children }: { children: JSX.Element }) => {
   const { url } = useRouteMatch();

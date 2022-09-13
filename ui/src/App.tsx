@@ -10,12 +10,16 @@ import { ModalsProvider } from '@mantine/modals';
 import { ApolloProvider } from '@apollo/client';
 import apolloClient from './apollo-client';
 
+const theme = {
+  fontFamily: 'Comfortaa, cursive',
+};
+
 const styles = {
   '*': { margin: 0, padding: 0 },
 };
 
 const App = () => (
-  <MantineProvider withGlobalStyles withNormalizeCSS>
+  <MantineProvider theme={theme} withGlobalStyles withNormalizeCSS>
     <Global styles={styles} />
     <NotificationsProvider>
       <ModalsProvider>
