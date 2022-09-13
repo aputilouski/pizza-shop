@@ -158,7 +158,7 @@ const CartModal = () => {
 
             {items.length >= 1 && (
               <div className="mt-3 py-2">
-                <p className="text-center mb-1.5 text-lg font-semibold">Total: {total} $</p>
+                <p className="text-center mb-2 text-lg font-semibold">Total: {total} $</p>
                 <Button fullWidth onClick={() => setStep(2)}>
                   Order
                 </Button>
@@ -184,7 +184,7 @@ const CartModal = () => {
               {...form.getInputProps('phone')}
             />
             <Textarea name="note" placeholder="Note" {...form.getInputProps('note')} />
-            <div>
+            <div className="mt-3">
               <Button fullWidth type="submit">
                 Checkout (${total})
               </Button>
