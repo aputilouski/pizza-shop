@@ -21,11 +21,11 @@ type CartItemCardProps = {
 const CartItemCard = ({ product, increase, decrease, value, price, remove }: CartItemCardProps) => (
   <Card shadow="sm" radius="sm" withBorder>
     <p className="mb-1 font-semibold">{product.name}</p>
-    {product.description && <p className="text-sm mb-2">{product.description}</p>}
+    {product.description && <p className="text-xs mb-2 text-gray-600">{product.description}</p>}
     <div className="flex items-center justify-between gap-4">
       <div>
         <p className="">{price.value} $</p>
-        {price.weight && <p className="text-sm leading-none">{price.weight} g</p>}
+        {price.weight && <p className="text-xs">{price.weight} g</p>}
       </div>
       <CartButton //
         increase={increase}
