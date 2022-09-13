@@ -90,7 +90,7 @@ const Query = new GraphQLObjectType({
         if (!isAdmin(context.user)) throw new Error('Forbidden');
         const result = await Order.aggregate([
           { $match: start ? { updatedAt: { $gte: start } } : {} }, //
-          { $group: { _id: '$status', count: { $count: {} } } },
+          { $group: { _id: '$status', count: { $sum: 1 } } },
         ]);
         return {
           initiatedOrders: result.find(item => item._id === 'initiated')?.count || 0,
