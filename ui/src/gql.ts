@@ -165,7 +165,7 @@ export const GET_USER_ORDERS = gql`
 `;
 
 export const GET_STATS = gql`
-  query GetStats($start: DateTime) {
+  query GetStats($start: DateTime!) {
     stats(start: $start) {
       initiatedOrders
       receivedOrders

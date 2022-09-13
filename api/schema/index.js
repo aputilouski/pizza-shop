@@ -85,7 +85,7 @@ const Query = new GraphQLObjectType({
           },
         })
       ),
-      args: { start: { type: GraphQLDateTime } },
+      args: { start: { type: new GraphQLNonNull(GraphQLDateTime) } },
       resolve: async (_, { start }, context) => {
         if (!isAdmin(context.user)) throw new Error('Forbidden');
         const result = await Order.aggregate([

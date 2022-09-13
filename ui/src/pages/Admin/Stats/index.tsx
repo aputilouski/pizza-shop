@@ -55,6 +55,7 @@ const Page = () => {
     variables: { start },
     onError: e => notify.error(e.message),
     fetchPolicy: 'network-only',
+    skip: !start,
   });
 
   React.useEffect(() => {
