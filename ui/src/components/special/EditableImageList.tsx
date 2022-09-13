@@ -18,8 +18,7 @@ type EditableListProps = {
 const SINGLE_UPLOAD = gql`
   mutation SingleUpload($file: Upload!) {
     SingleUpload(file: $file) {
-      name
-      link
+      url
     }
   }
 `;
@@ -29,7 +28,7 @@ const SINGLE_UPLOAD = gql`
  */
 
 const EditableImageList = ({ label = 'Images', value: images = [], id, onChange: setImages, error }: EditableListProps) => {
-  const [upload, { loading, error: uploadError, data, reset }] = useMutation<{ SingleUpload: { name: string; link: string } }>(SINGLE_UPLOAD);
+  const [upload, { loading, error: uploadError, data, reset }] = useMutation<{ SingleUpload: { url: string } }>(SINGLE_UPLOAD);
 
   React.useEffect(() => {
     if (!uploadError) return;
@@ -61,7 +60,7 @@ const EditableImageList = ({ label = 'Images', value: images = [], id, onChange:
 
   React.useEffect(() => {
     if (!data) return;
-    action(prependRef.current, data.SingleUpload.link);
+    action(prependRef.current, data.SingleUpload.url);
     reset();
   }, [action, data, reset]);
 

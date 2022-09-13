@@ -1,35 +1,26 @@
-const { createWriteStream, unlink } = require('fs');
 const { env } = require('@config');
-const path = require('path');
-const { customAlphabet } = require('nanoid');
+const cloudinary = require('cloudinary');
 
-const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 24);
+cloudinary.config({
+  cloud_name: env.cloudinary_cloud_name,
+  api_key: env.cloudinary_api_key,
+  api_secret: env.cloudinary_api_secret,
+});
 
 const upload = async promise => {
-  const { createReadStream, filename } = await promise;
+  const { createReadStream } = await promise;
+
   const stream = createReadStream();
-  const storedFileName = nanoid() + path.extname(filename);
-  const storedFileUrl = env.media_path + '/' + storedFileName;
 
   // Store the file in the filesystem.
-  await new Promise((resolve, reject) => {
-    const writeStream = createWriteStream(storedFileUrl);
-    writeStream.on('finish', resolve);
-
-    writeStream.on('error', error => {
-      unlink(storedFileUrl, () => {
-        reject(error);
-      });
-    });
-
-    stream.on('error', error => writeStream.destroy(error));
-
+  const result = await new Promise(async (resolve, reject) => {
+    const writeStream = cloudinary.uploader.upload_stream(result => (!result.error ? resolve(result) : reject(result.error)), { folder: 'pizza-shop' });
+    stream.on('error', reject);
     stream.pipe(writeStream);
   });
 
   return {
-    name: storedFileName,
-    link: '/media/' + storedFileName,
+    url: result.secure_url,
   };
 };
 

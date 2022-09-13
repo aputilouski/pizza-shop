@@ -192,8 +192,7 @@ const Mutation = new GraphQLObjectType({
         new GraphQLObjectType({
           name: 'file',
           fields: () => ({
-            name: { type: new GraphQLNonNull(GraphQLString) },
-            link: { type: new GraphQLNonNull(GraphQLString) },
+            url: { type: new GraphQLNonNull(GraphQLString) },
           }),
         })
       ),
