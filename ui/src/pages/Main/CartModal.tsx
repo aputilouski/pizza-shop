@@ -1,5 +1,5 @@
 import React from 'react';
-import { Indicator, ActionIcon, Modal, Alert, CloseButton, Card, Button, TextInput, Textarea, LoadingOverlay, Notification } from '@mantine/core';
+import { Indicator, ActionIcon, Modal, Alert, CloseButton, Card, Button, TextInput, Textarea, LoadingOverlay, Notification, Transition } from '@mantine/core';
 import { IconShoppingCart } from '@tabler/icons';
 import { useCart } from './CartProvider';
 import { GET_All_PRODUCTS, CREATE_ORDER } from 'gql';
@@ -107,11 +107,22 @@ const CartModal = () => {
 
   return (
     <>
-      <Indicator disabled={items.length === 0} color="red" withBorder size={16} offset={4}>
-        <ActionIcon onClick={() => setOpen(true)} color="orange" size="xl" radius="xl" variant="light">
-          <IconShoppingCart />
-        </ActionIcon>
-      </Indicator>
+      <Transition mounted transition="fade" duration={150} timingFunction="ease-out">
+        {styles => (
+          <Indicator disabled={items.length === 0} color="red" withBorder size={16} offset={4}>
+            <ActionIcon //
+              style={styles}
+              onClick={() => setOpen(true)}
+              variant="filled"
+              size="xl"
+              radius="xl"
+              color="orange">
+              <IconShoppingCart />
+            </ActionIcon>
+          </Indicator>
+        )}
+      </Transition>
+
       <Modal //
         title={step === 1 ? 'Cart' : 'Checkout'}
         opened={open}

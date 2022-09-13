@@ -4,6 +4,7 @@ import { Carousel } from '@mantine/carousel';
 
 const ImageSlider = ({ images }: { images: string[] }) => (
   <Carousel //
+    withControls={images.length !== 1}
     withIndicators
     slideGap="md">
     {images.map((src, i) => (

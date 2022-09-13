@@ -74,22 +74,20 @@ const OrderStatusModal = () => {
 
   return (
     <>
-      <div className="fixed w-full max-w-screen-xl bottom-16 h-0 my-2">
-        <Transition mounted={orders.length !== 0} transition="fade" duration={150} timingFunction="ease-out">
-          {styles => (
-            <ActionIcon //
-              style={styles}
-              onClick={() => setOpen(true)}
-              className="ml-auto mr-0"
-              variant="filled"
-              size={60}
-              radius="xl"
-              color="orange">
-              <IconTruckDelivery size={36} />
-            </ActionIcon>
-          )}
-        </Transition>
-      </div>
+      <Transition mounted={orders.length !== 0} transition="fade" duration={150} timingFunction="ease-out">
+        {styles => (
+          <ActionIcon //
+            style={styles}
+            onClick={() => setOpen(true)}
+            variant="filled"
+            size="xl"
+            radius="xl"
+            color="orange">
+            <IconTruckDelivery />
+          </ActionIcon>
+        )}
+      </Transition>
+
       <Modal //
         size="xl"
         title="Orders"
