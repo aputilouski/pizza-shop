@@ -54,8 +54,8 @@ const OrderManagement = () => {
           edges,
           pageInfo: {
             ...currentOrders.orders.pageInfo,
-            startCursor: edges[0].cursor,
-            endCursor: edges[edges.length - 1].cursor,
+            startCursor: edges[0]?.cursor || null,
+            endCursor: edges[edges.length - 1]?.cursor || null,
           },
         },
       };
@@ -76,8 +76,8 @@ const OrderManagement = () => {
             edges,
             pageInfo: {
               ...nextOrders.orders.pageInfo,
-              startCursor: edges[0].cursor,
-              endCursor: edges[edges.length - 1].cursor,
+              startCursor: edges[0]?.cursor || null,
+              endCursor: edges[edges.length - 1]?.cursor || null,
             },
           },
         };
